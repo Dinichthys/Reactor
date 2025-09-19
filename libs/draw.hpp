@@ -7,18 +7,18 @@
 #include <SFML/System.hpp>
 
 #include "graph.hpp"
-#include "circle.hpp"
+#include "object.hpp"
 #include "vector.hpp"
-#include "cubes.hpp"
 
 #include "my_assert.h"
 
 const char* const kWindowName = "Reactor";
-const size_t kTimeSleep = 50000;
+const size_t kTimeSleep = 25000;
 const sf::Color kColorCircle = sf::Color::Green;
 
 enum RendererError {
     kDoneRenderer = 0,
+    kBadAllocReaction,
 };
 
 class Reactor {
@@ -36,18 +36,30 @@ class Reactor {
 
 class SceneManager {
     private:
-        std::vector<Circle>& circles;
-        std::vector<Cube>& cubes;
+        std::vector<Object*>& objects;
 
         Reactor reactor;
 
     public:
-        explicit SceneManager(std::vector<Circle>& circles_val, std::vector<Cube>& cubes_val,
-                              const Reactor& reactor_val)
-            :circles(circles_val), cubes(cubes_val), reactor(reactor_val) {};
+        explicit SceneManager(std::vector<Object*>& objects_val, const Reactor& reactor_val)
+            :objects(objects_val), reactor(reactor_val) {};
 
-        std::vector<Circle>& GetCircleVector() const {return circles;};
-        std::vector<Cube>& GetCubesVector() const {return cubes;};
+        ~SceneManager() {
+            size_t objects_num = objects.size();
+            for (size_t i = 0; i < objects_num; i++) {
+                const Object* object = objects.back();
+                size_t object_hash_code = object->GetIDHash();
+                if (object_hash_code == kCircleIDHashCode) {
+                    delete dynamic_cast<Circle*>(objects.back());
+                }
+                if (object_hash_code == kCubeIDHashCode) {
+                    delete dynamic_cast<Cube*>(objects.back());
+                }
+                objects.pop_back();
+            }
+        }
+
+        std::vector<Object*>& GetObjectsVector() const {return objects;};
         const Reactor& GetReactor() const {return reactor;};
 };
 
@@ -61,11 +73,10 @@ class Renderer {
 
     public:
         explicit Renderer(unsigned int width, unsigned int height,
-                          std::vector<Circle>& circles,
-                          std::vector<Cube>& cubes,
+                          std::vector<Object*>& objects,
                           const Reactor& reactor)
             : window(sf::VideoMode ({width, height}), kWindowName),
-              scene_manager(circles, cubes, reactor) {
+              scene_manager(objects, reactor) {
             screen_width = width;
             screen_height = height;
         };
@@ -81,9 +92,12 @@ class Renderer {
         RendererError ShowWindow();
 
     private:
-        RendererError DrawCircles(const Circle& circle);
-        RendererError CheckCollisions();
-        RendererError CheckBorders();
+        RendererError DrawCircle(const Object* const object);
+        RendererError DrawCube(const Object* const object);
+        RendererError MoveCircle(Object* const object);
+        RendererError MoveCube(Object* const object);
 };
+
+const char* ErrorHandler(enum RendererError error);
 
 #endif // DRAW_HPP
