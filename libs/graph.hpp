@@ -2,30 +2,36 @@
 #define GRAPH_HPP
 
 #include <stdint.h>
+#include <vector>
+#include <float.h>
 
 #include "vector.hpp"
+#include "window.hpp"
 
 const float kAxisWidth = 2.f;
 const float kStep      = 1.f;
 const float kGridWidth = 1.f;
 const int8_t kGridBrightness = 63;
+const float kMinDifferenceScale = 1.1f;
+const float kAxisNum = 10.f;
 
-class Graph {
+class GraphManager : public Window  {
     private:
-        Coordinates lt_corner;
-        Coordinates rb_corner;
+        std::vector<float> points;
 
-        Coordinates start_point;
-
-        float scale;
+        float max = FLT_MIN;
+        float min = FLT_MAX;
 
     public:
-        explicit Graph(Coordinates lt_corner_val, Coordinates rb_corner_val, Coordinates start_val, float scale_val);
+        explicit GraphManager(const Coordinates& lt_corner, const Coordinates& rb_corner)
+            :Window(lt_corner, rb_corner) {};
 
-        Coordinates GetLTCoordinates() const {return Coordinates(lt_corner);};
-        Coordinates GetRBCoordinates() const {return Coordinates(rb_corner);};
-        Coordinates GetStartCoordinates() const {return Coordinates(start_point);};
-        float GetScale() const {return scale;};
+        std::vector<float>& GetValues() {return points;};
+        float GetMaxVal() {return max;};
+        float GetMinVal() {return min;};
+
+        void SetMaxVal(float new_max) {max = new_max;};
+        void SetMinVal(float new_min) {min = new_min;};
 };
 
 #endif // GRAPH_HPP

@@ -7,8 +7,13 @@
 
 #include "logging.h"
 
+void GenerateObjects(std::vector<Object*>& objects, float width, float height);
+
 int main() {
     set_log_lvl(kError);
+
+    const float kWidthReactor = 500;
+    const float kHeightReactor = 400;
 
     std::vector<Circle> circles = {
         Circle(Coordinates(2, 200, 200), Coordinates(2, 5, 0)),
@@ -29,13 +34,14 @@ int main() {
     };
 
     std::vector<Object*> objects = {};
+    GenerateObjects(objects, kWidthReactor, kHeightReactor);
     for (size_t i = 0; i < circles.size(); i++) {
         try {
             objects.push_back(new Circle(circles[i]));
         } catch (const std::bad_alloc& e) {
             std::cerr << "Memory allocation failed: " << e.what() << std::endl;
             for (size_t j = 0; j < i; j++) {
-                delete dynamic_cast<Circle*> (objects.back());
+                delete objects.back();
                 objects.pop_back();
             }
             return EXIT_FAILURE;
@@ -46,21 +52,20 @@ int main() {
             objects.push_back(new Cube(cubes[i]));
         } catch (const std::bad_alloc& e) {
             std::cerr << "Memory allocation failed: " << e.what() << std::endl;
-            for (size_t j = 0; j < i; j++) {
-                delete dynamic_cast<Cube*> (objects.back());
-                objects.pop_back();
-            }
-            for (size_t j = 0; j < circles.size(); j++) {
-                delete dynamic_cast<Circle*> (objects.back());
+            for (size_t j = 0; j < i + circles.size(); j++) {
+                delete objects.back();
                 objects.pop_back();
             }
             return EXIT_FAILURE;
         }
     }
 
-    Reactor reactor(Coordinates(2, 100, 100), Coordinates(2, 980, 620));
+    ReactorManager reactor(Coordinates(2, 100, 100), Coordinates(2, 100 + kWidthReactor, 100 + kHeightReactor), objects);
+    GraphManager graph(Coordinates(2, 500, 300), Coordinates(2, 700, 700));
 
-    Renderer renderer(1080, 720, objects, reactor);
+    Renderer renderer(1080, 720, reactor, graph,
+                      PistonButton(Button(Coordinates(2, 200, 500), Coordinates(2, 300, 600), "+"), 50),
+                      PistonButton(Button(Coordinates(2, 500, 500), Coordinates(2, 600, 600), "-"), -50));
 
     enum RendererError result = renderer.ShowWindow();
     if (result != kDoneRenderer) {
@@ -69,4 +74,12 @@ int main() {
     }
 
     return EXIT_SUCCESS;
+}
+
+
+void GenerateObjects(std::vector<Object*>& objects, float width, float height) {
+    for(size_t i = 0; i < 1000; i++) {
+        objects.push_back(new Circle(Coordinates(2, ((float)rand() * width) / RAND_MAX, ((float)rand() * height) / RAND_MAX),
+                                    Coordinates(2, ((float)rand() * 10) / RAND_MAX, ((float)rand() * 10) / RAND_MAX)));
+    }
 }

@@ -3,9 +3,9 @@
 
 #include "vector.hpp"
 
-const float kWidthCube = 50;
+const float kWidthCube = 5;
 
-const float kCircleRadius = 50;
+const float kCircleRadius = 5;
 const size_t kCircleWeight = 1;
 
 class Object {
