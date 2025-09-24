@@ -328,19 +328,4 @@ float ReactorManager::CountEnergy() {
     }
 
     return energy;
-
-//     std::vector<float>& energies = graph_manager.GetValues();
-//     if (energies.size() == kMaxSizeExperiments) {
-//         energies.erase(energies.begin());
-//     }
-//
-//     energies.push_back(energy);
-//     if (energy > graph_manager.GetMaxVal()) {
-//         graph_manager.SetMaxVal(energy);
-//     }
-//     if (energy < graph_manager.GetMinVal()) {
-//         graph_manager.SetMinVal(energy);
-//     }
-//
-//     return kDoneReactor;
 }

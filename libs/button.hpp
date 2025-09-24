@@ -5,6 +5,7 @@
 
 #include "window.hpp"
 
+const sf::Color kDefaultButtonColor = sf::Color::Blue;
 const sf::Color kPressedColor = sf::Color::Green;
 const sf::Color kReleaseColor = sf::Color::Red;
 
@@ -23,7 +24,16 @@ class Button : public Window {
         const char* GetText() const {return text;};
         void SetPressedInfo(bool new_pressed) {pressed = new_pressed;};
 
-        // virtual void Draw(sf::RenderWindow& window) override {};
+        virtual void Draw(sf::RenderWindow& window) override {
+            Coordinates lt_corner(Window::GetLTCorner());
+            Coordinates rb_corner(Window::GetRBCorner());
+
+            sf::RectangleShape button_background(sf::Vector2f(rb_corner[0] - lt_corner[0], rb_corner[1] - lt_corner[1]));
+            button_background.setPosition(lt_corner[0], lt_corner[1]);
+            button_background.setFillColor(kDefaultButtonColor);
+
+            window.draw(button_background);
+        };
 };
 
 #endif // BUTTON_HPP

@@ -23,7 +23,7 @@ class Window {
         virtual void SetLTCorner(const Coordinates& coors) {lt_corner = coors;};
         virtual void SetRBCorner(const Coordinates& coors) {rb_corner = coors;};
 
-        virtual void Draw(sf::RenderWindow& window) {};
+        virtual void Draw(sf::RenderWindow& window) = 0;
 };
 
 #endif // MY_WINDOW_HPP
