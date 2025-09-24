@@ -8,7 +8,7 @@
 #include "vector.hpp"
 #include "window.hpp"
 
-const float kAxisWidth = 2.f;
+const float kAxisWidth = 5.f;
 const float kStep      = 1.f;
 const float kGridWidth = 1.f;
 const int8_t kGridBrightness = 63;
@@ -32,6 +32,8 @@ class GraphManager : public Window  {
 
         void SetMaxVal(float new_max) {max = new_max;};
         void SetMinVal(float new_min) {min = new_min;};
+
+        // virtual void Draw(sf::RenderWindow& window) override {};
 };
 
 #endif // GRAPH_HPP

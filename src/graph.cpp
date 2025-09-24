@@ -62,7 +62,7 @@ RendererError Renderer::DrawAxis() {
     if ((start_point_y > lt_corner_y) &&
         (start_point_y < rb_corner_y)) {
         sf::RectangleShape axis(sf::Vector2f(rb_corner_x - lt_corner_x, kAxisWidth));
-        axis.setPosition(lt_corner_x, start_point_y);
+        axis.setPosition(lt_corner_x, start_point_y - kAxisWidth);
         axis.setFillColor(sf::Color::Blue);
         window.draw(axis);
     }
@@ -125,7 +125,7 @@ RendererError Renderer::DrawGraph() {
             (y < rb_corner_y - start_point_y)) {
             vertices [point_index].position = {x + start_point_x, y + start_point_y};
 
-            vertices [point_index].color = sf::Color::Blue;
+            vertices [point_index].color = sf::Color::Red;
 
             point_index++;
         }

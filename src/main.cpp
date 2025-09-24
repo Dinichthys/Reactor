@@ -61,7 +61,7 @@ int main() {
     }
 
     ReactorManager reactor(Coordinates(2, 100, 100), Coordinates(2, 100 + kWidthReactor, 100 + kHeightReactor), objects);
-    GraphManager graph(Coordinates(2, 500, 300), Coordinates(2, 700, 700));
+    GraphManager graph(Coordinates(2, 500, 300), Coordinates(2, 700, 500));
 
     Renderer renderer(1080, 720, reactor, graph,
                       PistonButton(Button(Coordinates(2, 200, 500), Coordinates(2, 300, 600), "+"), 50),

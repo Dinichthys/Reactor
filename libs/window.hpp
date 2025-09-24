@@ -1,5 +1,10 @@
-#ifndef WINDOW_HPP
-#define WINDOW_HPP
+#ifndef MY_WINDOW_HPP
+#define MY_WINDOW_HPP
+
+#include <SFML/Graphics/Vertex.hpp>
+#include <SFML/Graphics.hpp>
+#include <SFML/Window.hpp>
+#include <SFML/System.hpp>
 
 #include "vector.hpp"
 
@@ -17,6 +22,8 @@ class Window {
 
         virtual void SetLTCorner(const Coordinates& coors) {lt_corner = coors;};
         virtual void SetRBCorner(const Coordinates& coors) {rb_corner = coors;};
+
+        virtual void Draw(sf::RenderWindow& window) {};
 };
 
-#endif // WINDOW_HPP
+#endif // MY_WINDOW_HPP

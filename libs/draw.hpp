@@ -17,17 +17,12 @@
 const char* const kWindowName = "Reactor";
 const size_t kTimeSleep = 10000;
 const size_t kCharacterSize = 100;
-const float  kShiftTextPlusVer = 0.2;
-const float  kShiftTextPlusHor = 0.2;
-const float  kShiftTextMinusVer = 0.2;
-const float  kShiftTextMinusHor = 0.3;
-const char* const kFontFileName = "data/font.ttf";
 const sf::Color kColorCircle = sf::Color::Green;
 
 enum RendererError {
     kDoneRenderer = 0,
-    kBadAllocReaction,
-    kCantLoadFont,
+    kBadAllocReactionRenderer,
+    kCantLoadFontRenderer,
 };
 
 class Renderer {

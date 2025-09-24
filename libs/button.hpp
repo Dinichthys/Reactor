@@ -22,6 +22,8 @@ class Button : public Window {
         bool GetPressedInfo() const {return pressed;};
         const char* GetText() const {return text;};
         void SetPressedInfo(bool new_pressed) {pressed = new_pressed;};
+
+        // virtual void Draw(sf::RenderWindow& window) override {};
 };
 
 #endif // BUTTON_HPP

@@ -1,6 +1,8 @@
 #ifndef OBJECT_HPP
 #define OBJECT_HPP
 
+#include <typeinfo>
+
 #include "vector.hpp"
 
 const float kWidthCube = 5;

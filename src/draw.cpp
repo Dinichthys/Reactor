@@ -56,11 +56,14 @@ RendererError Renderer::ShowWindow() {
 
         window.draw(background);
 
-        DrawButtons();
+        plus_piston.Draw(window);
+        minus_piston.Draw(window);
+        // DrawButtons();
 
-        DrawReactor();
+        reactor_manager.Draw(window);
+        // DrawReactor();
 
-        DrawCoordinatesSystem();
+        // DrawCoordinatesSystem();
 
         usleep(kTimeSleep);
 
@@ -181,7 +184,7 @@ RendererError Renderer::DrawButtons() {
 
     sf::Font font;
     if (!font.loadFromFile(kFontFileName)) {
-        return kCantLoadFont;
+        return kCantLoadFontRenderer;
     }
 
     sf::Text text(plus_piston.GetText(), font, rb_corner[1] - lt_corner[1]);
@@ -291,7 +294,7 @@ static RendererError CircleCircleCollision(std::vector<Object*>& objects, size_t
             res_object = new Cube((center_first + center_second) / 2, 2 * kCircleWeight,
                                   (!(speed_first + speed_second)) * coeff);
         } catch (const std::bad_alloc& e) {
-            return kBadAllocReaction;
+            return kBadAllocReactionRenderer;
         }
         objects[i] = res_object;
         delete first;
@@ -370,7 +373,7 @@ static RendererError CubeCubeCollision(std::vector<Object*>& objects, size_t i, 
                     delete objects.back();
                     objects.pop_back();
                 }
-                return kBadAllocReaction;
+                return kBadAllocReactionRenderer;
             }
             objects.push_back(new_circle);
 
@@ -551,7 +554,7 @@ const char* ErrorHandler(enum RendererError error) {
     switch (error) {
         case kDoneRenderer:
             return "All were done";
-        case kBadAllocReaction:
+        case kBadAllocReactionRenderer:
             return "Can't allocate memory in reaction";
         default:
             return "Invalid enum RendererError identifier";
