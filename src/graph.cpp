@@ -38,7 +38,6 @@ void GraphManager::Draw(sf::RenderWindow& window) {
 GraphError GraphManager::DrawAxis(sf::RenderWindow& window) {
     Coordinates lt_corner(Window::GetLTCorner());
     Coordinates rb_corner(Window::GetRBCorner());
-    Coordinates start_point(2, lt_corner[0], rb_corner[1]);
 
     LOG(kDebug, "Starting drawing axis");
 
@@ -46,8 +45,10 @@ GraphError GraphManager::DrawAxis(sf::RenderWindow& window) {
     float rb_corner_y = rb_corner.GetCoordinate(1);
     float lt_corner_x = lt_corner.GetCoordinate(0);
     float lt_corner_y = lt_corner.GetCoordinate(1);
-    float start_point_x = start_point.GetCoordinate(0);
-    float start_point_y = start_point.GetCoordinate(1);
+
+    float step = (rb_corner_y - lt_corner_y) / kAxisNum;
+    float start_point_x = lt_corner_x + step;
+    float start_point_y = rb_corner_y - step;
 
     if ((start_point_x > lt_corner_x) &&
         (start_point_x < rb_corner_x)) {
@@ -70,7 +71,6 @@ GraphError GraphManager::DrawAxis(sf::RenderWindow& window) {
     grid_line_color.a = kGridBrightness;
     line.setFillColor(grid_line_color);
 
-    float step = (start_point_y - lt_corner_y) / kAxisNum;
     float line_y = start_point_y;
     for (; line_y > lt_corner_y; line_y -= step) {
         line.setPosition({lt_corner_x, line_y});
@@ -90,28 +90,27 @@ GraphError GraphManager::DrawAxis(sf::RenderWindow& window) {
 GraphError GraphManager::DrawGraph(sf::RenderWindow& window) {
     Coordinates lt_corner(Window::GetLTCorner());
     Coordinates rb_corner(Window::GetRBCorner());
-    Coordinates start_point(2, lt_corner[0], rb_corner[1]);
 
     float rb_corner_x = rb_corner.GetCoordinate(0);
     float rb_corner_y = rb_corner.GetCoordinate(1);
     float lt_corner_x = lt_corner.GetCoordinate(0);
     float lt_corner_y = lt_corner.GetCoordinate(1);
-    float start_point_x = start_point.GetCoordinate(0);
-    float start_point_y = start_point.GetCoordinate(1);
 
-    float right_side = rb_corner_x - start_point_x;
-    float step = (rb_corner_x - lt_corner_x) / points.size();
-    float scale = (lt_corner[1] - start_point[1]) / (max * kMinDifferenceScale);
+    float step_axis = (rb_corner_y - lt_corner_y) / kAxisNum;
+    float start_point_x = lt_corner_x + step_axis;
+    float start_point_y = rb_corner_y - step_axis;
 
-    size_t vertex_size = (size_t) floor((double)((rb_corner_x - lt_corner_x) / step)) + 1;
+    float step = (rb_corner_x - start_point_x) / points.size();
+    float scale = (lt_corner_y - start_point_y) / (max * kMinDifferenceScale);
+
+    size_t vertex_size = points.size();
     size_t point_index = 0;
 
     sf::VertexArray vertices (sf::PrimitiveType::Points, vertex_size);
 
     size_t val_index = 0;
-    size_t length = points.size();
-    for (float x = lt_corner_x - start_point_x;
-        (x < right_side) && (val_index < length); x += step) {
+    for (float x = start_point_x;
+        (x < rb_corner_x) && (val_index < vertex_size); x += step) {
         float y = points[val_index] * scale;
         val_index++;
 
@@ -119,7 +118,7 @@ GraphError GraphManager::DrawGraph(sf::RenderWindow& window) {
 
         if ((y > lt_corner_y - start_point_y) &&
             (y < rb_corner_y - start_point_y)) {
-            vertices [point_index].position = {x + start_point_x, y + start_point_y};
+            vertices [point_index].position = {x, y + start_point_y};
 
             vertices [point_index].color = sf::Color::Red;
 

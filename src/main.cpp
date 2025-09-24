@@ -1,13 +1,13 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <iostream>
+#include <vector>
 
-#include "draw.hpp"
 #include "object.hpp"
+#include "generate_obj.hpp"
+#include "draw.hpp"
 
 #include "logging.h"
-
-void GenerateObjects(std::vector<Object*>& objects, float width, float height);
 
 int main() {
     set_log_lvl(kError);
@@ -34,7 +34,7 @@ int main() {
     };
 
     std::vector<Object*> objects = {};
-    GenerateObjects(objects, kWidthReactor, kHeightReactor);
+    GenerateObjects(objects, kWidthReactor, kHeightReactor, 1000);
     for (size_t i = 0; i < circles.size(); i++) {
         try {
             objects.push_back(new Circle(circles[i]));
@@ -63,9 +63,15 @@ int main() {
     ReactorManager reactor(Coordinates(2, 100, 100), Coordinates(2, 100 + kWidthReactor, 100 + kHeightReactor), objects);
     GraphManager graph(Coordinates(2, 500, 300), Coordinates(2, 700, 500));
 
-    Renderer renderer(1080, 720, reactor, graph,
-                      PistonButton(Button(Coordinates(2, 200, 500), Coordinates(2, 300, 600), "+"), 50),
-                      PistonButton(Button(Coordinates(2, 500, 500), Coordinates(2, 600, 600), "-"), -50));
+    PistonButton plus_button(Button(Coordinates(2, 250, 550), Coordinates(2, 300, 600), "->"), 50);
+    PistonButton minus_button(Button(Coordinates(2, 400, 550), Coordinates(2, 450, 600), "<-"), -50);
+
+    std::vector<Button*> buttons;
+    buttons.push_back(&plus_button);
+    buttons.push_back(&minus_button);
+    PanelControl panel_control(Coordinates(2, 200, 500), Coordinates(2, 500, 650), buttons);
+
+    Renderer renderer(1080, 720, reactor, graph, panel_control);
 
     enum RendererError result = renderer.ShowWindow();
     if (result != kDoneRenderer) {
@@ -74,12 +80,4 @@ int main() {
     }
 
     return EXIT_SUCCESS;
-}
-
-
-void GenerateObjects(std::vector<Object*>& objects, float width, float height) {
-    for(size_t i = 0; i < 1000; i++) {
-        objects.push_back(new Circle(Coordinates(2, ((float)rand() * width) / RAND_MAX, ((float)rand() * height) / RAND_MAX),
-                                    Coordinates(2, ((float)rand() * 10) / RAND_MAX, ((float)rand() * 10) / RAND_MAX)));
-    }
 }

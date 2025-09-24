@@ -34,18 +34,17 @@ class Renderer {
         ReactorManager reactor_manager;
         GraphManager graph_manager;
 
-        PistonButton plus_piston;
-        PistonButton minus_piston;
+        PanelControl panel_control;
 
     public:
         explicit Renderer(unsigned int width, unsigned int height,
                           const ReactorManager& reactor,
                           const GraphManager& graph,
-                          const PistonButton& plus, const PistonButton& minus)
+                          const PanelControl& panel)
             : window(sf::VideoMode ({width, height}), kWindowName),
               reactor_manager(reactor),
               graph_manager(graph),
-              plus_piston(plus), minus_piston(minus) {
+              panel_control(panel) {
             screen_width = width;
             screen_height = height;
         };
@@ -63,7 +62,8 @@ class Renderer {
     private:
         RendererError AnalyseKey(const sf::Event event);
         Window* IdentifyWindow(float x, float y);
-        PistonButton* IdentifyButton(float x, float y);
+        Button* IdentifyButton(float x, float y);
+        RendererError PistonButtonAction(Button* piston_button);
 };
 
 const char* ErrorHandler(enum RendererError error);

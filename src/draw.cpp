@@ -33,8 +33,7 @@ RendererError Renderer::ShowWindow() {
 
         window.draw(background);
 
-        plus_piston.Draw(window);
-        minus_piston.Draw(window);
+        panel_control.Draw(window);
 
         reactor_manager.Draw(window);
         float energy = reactor_manager.CountEnergy();
@@ -76,28 +75,24 @@ RendererError Renderer::AnalyseKey(const sf::Event event) {
             return kDoneRenderer;
         }
 
-        moving = true;
         mouse_x = sf::Mouse::getPosition(window).x;
         mouse_y = sf::Mouse::getPosition(window).y;
+        Button* pressed_button = IdentifyButton(mouse_x, mouse_y);
+        if(pressed_button != NULL) {
+            mouse_x = 0;
+            mouse_y = 0;
+            return PistonButtonAction(pressed_button);
+        }
 
+        moving = true;
         moving_window = IdentifyWindow(mouse_x, mouse_y);
         if (moving_window != NULL) {
             return kDoneRenderer;
         }
         moving = false;
-
-        PistonButton* pressed_button = IdentifyButton(mouse_x, mouse_y);
         mouse_x = 0;
         mouse_y = 0;
-        if(pressed_button == NULL) {
-            return kDoneRenderer;
-        }
 
-        bool pressed = pressed_button->GetPressedInfo();
-        pressed_button->SetPressedInfo(!pressed);
-        if (!pressed) {
-            reactor_manager.SetPistonX(reactor_manager.GetPistonX() + pressed_button->GetShift());
-        }
         return kDoneRenderer;
     }
 
@@ -107,16 +102,7 @@ RendererError Renderer::AnalyseKey(const sf::Event event) {
         mouse_x = sf::Mouse::getPosition(window).x;
         mouse_y = sf::Mouse::getPosition(window).y;
 
-        Coordinates lt_corner(moving_window->GetLTCorner());
-        Coordinates rb_corner(moving_window->GetRBCorner());
-
-        lt_corner.SetCoordinate(0, lt_corner[0] + (float)(mouse_x - old_x));
-        lt_corner.SetCoordinate(1, lt_corner[1] + (float)(mouse_y - old_y));
-        rb_corner.SetCoordinate(0, rb_corner[0] + (float)(mouse_x - old_x));
-        rb_corner.SetCoordinate(1, rb_corner[1] + (float)(mouse_y - old_y));
-
-        moving_window->SetLTCorner(lt_corner);
-        moving_window->SetRBCorner(rb_corner);
+        moving_window->Move((float)(mouse_x - old_x), (float)(mouse_y - old_y));
     }
 
     return kDoneRenderer;
@@ -137,25 +123,41 @@ Window* Renderer::IdentifyWindow(float x, float y) {
         return &graph_manager;
     }
 
+    const Coordinates& lt_corner_panel = panel_control.GetLTCorner();
+    const Coordinates& rb_corner_panel = panel_control.GetRBCorner();
+    if ((x > lt_corner_panel[0]) && (x < rb_corner_panel[0])
+        && (y > lt_corner_panel[1]) && (y < rb_corner_panel[1])) {
+        return &panel_control;
+    }
+
     return NULL;
 }
 
-PistonButton* Renderer::IdentifyButton(float x, float y) {
-    const Coordinates& lt_corner_plus = plus_piston.GetLTCorner();
-    const Coordinates& rb_corner_plus = plus_piston.GetRBCorner();
-    if ((x > lt_corner_plus[0]) && (x < rb_corner_plus[0])
-        && (y > lt_corner_plus[1]) && (y < rb_corner_plus[1])) {
-        return &plus_piston;
-    }
-
-    const Coordinates& lt_corner_minus = minus_piston.GetLTCorner();
-    const Coordinates& rb_corner_minus = minus_piston.GetRBCorner();
-    if ((x > lt_corner_minus[0]) && (x < rb_corner_minus[0])
-        && (y > lt_corner_minus[1]) && (y < rb_corner_minus[1])) {
-        return &minus_piston;
+Button* Renderer::IdentifyButton(float x, float y) {
+    std::vector<Button*>& buttons = panel_control.GetButtons();
+    size_t buttons_num = buttons.size();
+    for (size_t i = 0; i < buttons_num; i++) {
+        const Coordinates& lt_corner_plus = buttons[i]->GetLTCorner();
+        const Coordinates& rb_corner_plus = buttons[i]->GetRBCorner();
+        if ((x > lt_corner_plus[0]) && (x < rb_corner_plus[0])
+            && (y > lt_corner_plus[1]) && (y < rb_corner_plus[1])) {
+            return buttons[i];
+        }
     }
 
     return NULL;
+}
+
+RendererError Renderer::PistonButtonAction(Button* button) {
+    ASSERT(button != NULL, "");
+
+    PistonButton* pressed_button = dynamic_cast<PistonButton*>(button);
+    bool pressed = pressed_button->GetPressedInfo();
+    pressed_button->SetPressedInfo(!pressed);
+    if (!pressed) {
+        reactor_manager.SetPistonX(reactor_manager.GetPistonX() + pressed_button->GetShift());
+    }
+    return kDoneRenderer;
 }
 
 const char* ErrorHandler(enum RendererError error) {

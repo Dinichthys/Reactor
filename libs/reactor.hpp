@@ -120,8 +120,7 @@ class PistonButton : public Button {
             }
 
             sf::Text text(Button::GetText(), font, rb_corner[1] - lt_corner[1]);
-            text.setPosition(lt_corner[0] + (rb_corner[0] - lt_corner[0]) * kShiftTextPlusHor,
-                            lt_corner[1] - (rb_corner[1] - lt_corner[1]) * kShiftTextPlusVer);
+            text.setPosition(lt_corner[0], lt_corner[1]);
 
             window.draw(button_background);
             window.draw(text);

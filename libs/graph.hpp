@@ -8,7 +8,7 @@
 #include "vector.hpp"
 #include "window.hpp"
 
-const float kAxisWidth = 5.f;
+const float kAxisWidth = 2.f;
 const float kStep      = 1.f;
 const float kGridWidth = 1.f;
 const int8_t kGridBrightness = 63;

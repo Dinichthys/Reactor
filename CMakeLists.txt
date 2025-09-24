@@ -6,6 +6,7 @@ add_executable (${PROJECT_NAME}
     src/draw.cpp
     src/graph.cpp
     src/reactor.cpp
+    src/generate_obj.cpp
 
     libs/geometry/src/vector.cpp
     libs/geometry/src/matrix.cpp
