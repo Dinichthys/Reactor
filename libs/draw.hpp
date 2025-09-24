@@ -65,20 +65,20 @@ class Renderer {
         Window* IdentifyWindow(float x, float y);
         PistonButton* IdentifyButton(float x, float y);
 
-        RendererError DrawReactor();
-        RendererError CheckCollisions();
-        RendererError DrawMolecules();
-        RendererError MoveMolecules();
-        RendererError DrawCircle(const Object* const object);
-        RendererError DrawCube(const Object* const object);
-        RendererError MoveCircle(Object* const object, float distance);
-        RendererError CountEnergy();
+        // RendererError DrawReactor();
+        // RendererError CheckCollisions();
+        // RendererError DrawMolecules();
+        // RendererError MoveMolecules();
+        // RendererError DrawCircle(const Object* const object);
+        // RendererError DrawCube(const Object* const object);
+        // RendererError MoveCircle(Object* const object, float distance);
+        // RendererError CountEnergy();
 
-        RendererError DrawCoordinatesSystem();
-        RendererError DrawAxis();
-        RendererError DrawGraph();
+        // RendererError DrawCoordinatesSystem();
+        // RendererError DrawAxis();
+        // RendererError DrawGraph();
 
-        RendererError DrawButtons() ;
+        // RendererError DrawButtons() ;
 };
 
 const char* ErrorHandler(enum RendererError error);

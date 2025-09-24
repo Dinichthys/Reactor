@@ -76,7 +76,8 @@ RendererError Renderer::ShowWindow() {
         }
         // DrawReactor();
 
-        DrawCoordinatesSystem();
+        graph_manager.Draw(window);
+        // DrawCoordinatesSystem();
 
         usleep(kTimeSleep);
 

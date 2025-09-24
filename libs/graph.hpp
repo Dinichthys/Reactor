@@ -15,6 +15,10 @@ const int8_t kGridBrightness = 63;
 const float kMinDifferenceScale = 1.1f;
 const float kAxisNum = 10.f;
 
+enum GraphError {
+    kDoneGraph = 0,
+};
+
 class GraphManager : public Window  {
     private:
         std::vector<float> points;
@@ -33,7 +37,9 @@ class GraphManager : public Window  {
         void SetMaxVal(float new_max) {max = new_max;};
         void SetMinVal(float new_min) {min = new_min;};
 
-        // virtual void Draw(sf::RenderWindow& window) override {};
+        virtual void Draw(sf::RenderWindow& window) override;
+        GraphError DrawAxis(sf::RenderWindow& window);
+        GraphError DrawGraph(sf::RenderWindow& window);
 };
 
 #endif // GRAPH_HPP
