@@ -66,7 +66,7 @@ static ReactorError CircleCircleCollision(std::vector<Object*>& objects, size_t 
     if ((first->GetCenterCoordinates() - second->GetCenterCoordinates()).SqLength()
             < kCircleRadius * kCircleRadius) {
 
-        LOG(kError, "Circle circle");
+        LOG(kDebug, "Circle circle");
 
         Coordinates center_first(first->GetCenterCoordinates());
         Coordinates speed_first(first->GetSpeed());
@@ -116,7 +116,7 @@ static ReactorError CircleCubeCollision(std::vector<Object*>& objects, size_t ci
     if ((abs(center_cube[0] - center_circle[0]) < kWidthCube / 2 + kCircleRadius)
         && (abs(center_cube[1] - center_circle[1]) < kWidthCube / 2 + kCircleRadius)) {
 
-        LOG(kError, "Circle cube");
+        LOG(kDebug, "Circle cube");
 
         Coordinates speed_circle(circle->GetSpeed());
         Coordinates speed_cube(cube->GetSpeed());
@@ -156,7 +156,7 @@ static ReactorError CubeCubeCollision(std::vector<Object*>& objects, size_t i, s
     if ((abs(center_first[0] - center_second[0]) < kWidthCube)
         && (abs(center_first[1] - center_second[1]) < kWidthCube)) {
 
-        LOG(kError, "Cube cube");
+        LOG(kDebug, "Cube cube");
 
         Coordinates speed_first(first->GetSpeed());
         size_t weight_first = first->GetWeight();
