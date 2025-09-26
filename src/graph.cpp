@@ -14,7 +14,9 @@
 #include "logging.h"
 #include "my_assert.h"
 
-void GraphManager::Draw(sf::RenderWindow& window) {
+void GraphManager::Draw(sf::RenderWindow* window) {
+    ASSERT(window != NULL, "");
+
     Coordinates lt_corner(Window::GetLTCorner());
     Coordinates rb_corner(Window::GetRBCorner());
 
@@ -26,16 +28,16 @@ void GraphManager::Draw(sf::RenderWindow& window) {
     ));
     rectangle.setPosition(lt_corner.GetCoordinate(0), lt_corner.GetCoordinate(1));
     rectangle.setOutlineColor(sf::Color::Black);
-    window.draw(rectangle);
+    window->draw(rectangle);
 
     DrawAxis(window);
 
     DrawGraph(window);
-
-    window.display();
 }
 
-GraphError GraphManager::DrawAxis(sf::RenderWindow& window) {
+GraphError GraphManager::DrawAxis(sf::RenderWindow* window) {
+    ASSERT(window != NULL, "");
+
     Coordinates lt_corner(Window::GetLTCorner());
     Coordinates rb_corner(Window::GetRBCorner());
 
@@ -55,7 +57,7 @@ GraphError GraphManager::DrawAxis(sf::RenderWindow& window) {
         sf::RectangleShape axis(sf::Vector2f(kAxisWidth, rb_corner_y - lt_corner_y));
         axis.setPosition(start_point_x, lt_corner_y);
         axis.setFillColor(sf::Color::Blue);
-        window.draw(axis);
+        window->draw(axis);
     }
 
     if ((start_point_y > lt_corner_y) &&
@@ -63,7 +65,7 @@ GraphError GraphManager::DrawAxis(sf::RenderWindow& window) {
         sf::RectangleShape axis(sf::Vector2f(rb_corner_x - lt_corner_x, kAxisWidth));
         axis.setPosition(lt_corner_x, start_point_y - kAxisWidth);
         axis.setFillColor(sf::Color::Blue);
-        window.draw(axis);
+        window->draw(axis);
     }
 
     sf::RectangleShape line({rb_corner_x - lt_corner_x, kGridWidth});
@@ -74,20 +76,22 @@ GraphError GraphManager::DrawAxis(sf::RenderWindow& window) {
     float line_y = start_point_y;
     for (; line_y > lt_corner_y; line_y -= step) {
         line.setPosition({lt_corner_x, line_y});
-        window.draw(line);
+        window->draw(line);
     }
 
     line.setSize({kGridWidth, rb_corner_y - lt_corner_y});
     float line_x = start_point_x;
     for (; line_x < rb_corner_x; line_x += step) {
         line.setPosition({line_x, lt_corner_y});
-        window.draw(line);
+        window->draw(line);
     }
 
     return kDoneGraph;
 }
 
-GraphError GraphManager::DrawGraph(sf::RenderWindow& window) {
+GraphError GraphManager::DrawGraph(sf::RenderWindow* window) {
+    ASSERT(window != NULL, "");
+
     Coordinates lt_corner(Window::GetLTCorner());
     Coordinates rb_corner(Window::GetRBCorner());
 
@@ -126,7 +130,7 @@ GraphError GraphManager::DrawGraph(sf::RenderWindow& window) {
         }
     }
 
-    window.draw(vertices);
+    window->draw(vertices);
 
     return kDoneGraph;
 }

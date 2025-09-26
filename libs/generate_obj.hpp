@@ -6,6 +6,12 @@
 
 #include "object.hpp"
 
-void GenerateObjects(std::vector<Object*>& objects, float width, float height, size_t number);
+enum GeneratingError {
+    kDoneGenerating = 0,
+    kBadAllocGenerating,
+};
+
+GeneratingError GenerateCircleObjects(std::vector<Object*>& objects, float width, float height, size_t number);
+GeneratingError GenerateCubeObjects(std::vector<Object*>& objects, float width, float height, size_t number);
 
 #endif // GENERATE_OBJ

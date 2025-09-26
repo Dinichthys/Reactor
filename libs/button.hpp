@@ -3,7 +3,9 @@
 
 #include <SFML/Graphics.hpp>
 
+#include "reactor.hpp"
 #include "window.hpp"
+#include "my_assert.h"
 
 const sf::Color kDefaultButtonColor = sf::Color::Blue;
 const sf::Color kPressedColor = sf::Color::Green;
@@ -14,27 +16,45 @@ class Button : public Window {
     private:
         bool pressed;
         const char* const text;
+        sf::Font font;
 
     public:
-        explicit Button(const Coordinates& lt_corner, const Coordinates& rb_corner, const char* text_val)
+        explicit Button(const Coordinates& lt_corner, const Coordinates& rb_corner,
+                        const char* text_val, const char* file_name)
             :Window(lt_corner, rb_corner), text(text_val) {
+            ASSERT(text_val != NULL, "");
+            ASSERT(file_name != NULL, "");
+
             pressed = false;
+            font.loadFromFile(file_name);
         };
 
         bool GetPressedInfo() const {return pressed;};
         const char* GetText() const {return text;};
         void SetPressedInfo(bool new_pressed) {pressed = new_pressed;};
 
-        virtual void Draw(sf::RenderWindow& window) override {
+        virtual void Draw(sf::RenderWindow* window) {
+            ASSERT(window != NULL, "");
+
             Coordinates lt_corner(Window::GetLTCorner());
             Coordinates rb_corner(Window::GetRBCorner());
 
             sf::RectangleShape button_background(sf::Vector2f(rb_corner[0] - lt_corner[0], rb_corner[1] - lt_corner[1]));
             button_background.setPosition(lt_corner[0], lt_corner[1]);
-            button_background.setFillColor(kDefaultButtonColor);
+            if (Button::GetPressedInfo()) {
+                button_background.setFillColor(kPressedColor);
+            } else {
+                button_background.setFillColor(kReleaseColor);
+            }
 
-            window.draw(button_background);
+            sf::Text text(Button::GetText(), font, rb_corner[1] - lt_corner[1]);
+            text.setPosition(lt_corner[0], lt_corner[1]);
+
+            window->draw(button_background);
+            window->draw(text);
         };
+
+        virtual void Action(ReactorManager* reactor) {};
 };
 
 class PanelControl : public Window {
@@ -42,7 +62,7 @@ class PanelControl : public Window {
         std::vector<Button*> buttons;
 
     public:
-        explicit PanelControl(Coordinates lt_corner, Coordinates rb_corner, std::vector<Button*>& buttons_val)
+        explicit PanelControl(Coordinates lt_corner, Coordinates rb_corner, const std::vector<Button*>& buttons_val)
             :Window(lt_corner, rb_corner) {
             size_t length = buttons_val.size();
             for (size_t i = 0; i < length; i++) {
@@ -52,7 +72,9 @@ class PanelControl : public Window {
 
         std::vector<Button*>& GetButtons() {return buttons;};
 
-        virtual void Draw(sf::RenderWindow& window) override {
+        virtual void Draw(sf::RenderWindow* window) override {
+            ASSERT(window != NULL, "");
+
             Coordinates lt_corner(Window::GetLTCorner());
             Coordinates rb_corner(Window::GetRBCorner());
 
@@ -60,7 +82,7 @@ class PanelControl : public Window {
             button_background.setPosition(lt_corner[0], lt_corner[1]);
             button_background.setFillColor(kPanelColor);
 
-            window.draw(button_background);
+            window->draw(button_background);
 
             size_t buttons_num = buttons.size();
             for (size_t i = 0; i < buttons_num; i++) {

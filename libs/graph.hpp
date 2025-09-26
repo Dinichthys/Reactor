@@ -37,9 +37,9 @@ class GraphManager : public Window  {
         void SetMaxVal(float new_max) {max = new_max;};
         void SetMinVal(float new_min) {min = new_min;};
 
-        virtual void Draw(sf::RenderWindow& window) override;
-        GraphError DrawAxis(sf::RenderWindow& window);
-        GraphError DrawGraph(sf::RenderWindow& window);
+        virtual void Draw(sf::RenderWindow* window) override;
+        GraphError DrawAxis(sf::RenderWindow* window);
+        GraphError DrawGraph(sf::RenderWindow* window);
 };
 
 #endif // GRAPH_HPP

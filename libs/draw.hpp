@@ -59,6 +59,8 @@ class Renderer {
 
         RendererError ShowWindow();
 
+        ReactorManager& GetReactorManager() {return reactor_manager;};
+
     private:
         RendererError AnalyseKey(const sf::Event event);
         Window* IdentifyWindow(float x, float y);

@@ -14,36 +14,17 @@
 #include "logging.h"
 #include "my_assert.h"
 
-enum ObjectType {
-    kNone = -1,
-
-    kCircleType = 0,
-    kCubeType = 1,
-};
-
-static enum ObjectType CheckObjectType(size_t type_hash_code);
-
-static ReactorError CircleCircleCollision(std::vector<Object*>& objects, size_t i, size_t j, bool& reaction);
-static ReactorError CircleCubeCollision(std::vector<Object*>& objects, size_t circle_index, size_t cube_index, bool& reaction);
-static ReactorError CubeCubeCollision(std::vector<Object*>& objects, size_t i, size_t j, bool& reaction);
-
-static enum ObjectType CheckObjectType(size_t type_hash_code) {
-    if (type_hash_code == kCircleIDHashCode) {
-        return kCircleType;
-    }
-    if (type_hash_code == kCubeIDHashCode) {
-        return kCubeType;
-    }
-    return kNone;
-}
+static ReactorError CircleCircleCollision(std::vector<Object*>& objects, size_t i, size_t j, bool* reaction);
+static ReactorError CircleCubeCollision(std::vector<Object*>& objects, size_t circle_index, size_t cube_index, bool* reaction);
+static ReactorError CubeCubeCollision(std::vector<Object*>& objects, size_t i, size_t j, bool* reaction);
 
 #include "draw.hpp"
 
 ReactorError ReactorManager::CheckCollisions() {
     size_t objects_num = objects.size();
 
-    typedef ReactorError (*CheckCollision_t)(std::vector<Object*>& objects, size_t i, size_t j, bool& reaction);
-    static const CheckCollision_t kCheckCollisionArr[2][2] = {
+    typedef ReactorError (*CheckCollision_t)(std::vector<Object*>& objects, size_t i, size_t j, bool* reaction);
+    static const CheckCollision_t kCheckCollisionArr[kObjectsNum][kObjectsNum] = {
     //   Index        |        Circle          |        Cube        |
         [kCircleType] = {CircleCircleCollision,  CircleCubeCollision},
         [kCubeType]   = {CircleCubeCollision,    CubeCubeCollision  },
@@ -51,14 +32,12 @@ ReactorError ReactorManager::CheckCollisions() {
 
     bool reaction = false;
     for (size_t i = 0; i < objects_num - 1; i++) {
-        size_t first_hash_code = objects[i]->GetIDHash();
-        enum ObjectType first_type = CheckObjectType(first_hash_code);
+        enum ObjectType first_type = objects[i]->GetType();
 
         for (size_t j = i + 1; j < objects_num; j++) {
-            size_t second_hash_code = objects[j]->GetIDHash();
-            enum ObjectType second_type = CheckObjectType(second_hash_code);
+            enum ObjectType second_type = objects[j]->GetType();
 
-            enum ReactorError result = kCheckCollisionArr[first_type][second_type](objects, i, j, reaction);
+            enum ReactorError result = kCheckCollisionArr[first_type][second_type](objects, i, j, &reaction);
             if (result != kDoneReactor) {
                 return result;
             }
@@ -72,12 +51,23 @@ ReactorError ReactorManager::CheckCollisions() {
     return kDoneReactor;
 }
 
-static ReactorError CircleCircleCollision(std::vector<Object*>& objects, size_t i, size_t j, bool& reaction) {
+static ReactorError CircleCircleCollision(std::vector<Object*>& objects, size_t i, size_t j, bool* reaction) {
+    ASSERT(reaction != NULL, "");
+
     Circle* first = dynamic_cast<Circle*>(objects[i]);
+    if (first == NULL) {
+        return kBadCast;
+    }
     Circle* second = dynamic_cast<Circle*>(objects[j]);
+    if (second == NULL) {
+        return kBadCast;
+    }
 
     if ((first->GetCenterCoordinates() - second->GetCenterCoordinates()).SqLength()
             < kCircleRadius * kCircleRadius) {
+
+        LOG(kError, "Circle circle");
+
         Coordinates center_first(first->GetCenterCoordinates());
         Coordinates speed_first(first->GetSpeed());
         Coordinates center_second(second->GetCenterCoordinates());
@@ -86,37 +76,48 @@ static ReactorError CircleCircleCollision(std::vector<Object*>& objects, size_t 
         float coeff = sqrt((speed_first.SqLength() + speed_second.SqLength()) / 2);
 
         Object* res_object = NULL;
-        try {
-            res_object = new Cube((center_first + center_second) / 2, 2 * kCircleWeight,
-                                  (!(speed_first + speed_second)) * coeff);
-        } catch (const std::bad_alloc& e) {
+        res_object = new(std::nothrow) Cube((center_first + center_second) / 2, 2 * kCircleWeight,
+                                (!(speed_first + speed_second)) * coeff);
+        if (res_object == NULL) {
             return ReactorError::kBadAllocReaction;
         }
         objects[i] = res_object;
+
         delete first;
         delete second;
         objects.erase(objects.begin() + j);
-        reaction = true;
+        *reaction = true;
         return kDoneReactor;
     }
-    reaction = false;
+    *reaction = false;
     return kDoneReactor;
 }
 
-static ReactorError CircleCubeCollision(std::vector<Object*>& objects, size_t circle_index, size_t cube_index, bool& reaction) {
-    if ((objects[circle_index])->GetIDHash() != kCircleIDHashCode) {
+static ReactorError CircleCubeCollision(std::vector<Object*>& objects, size_t circle_index, size_t cube_index, bool* reaction) {
+    ASSERT(reaction != NULL, "");
+
+    if ((objects[circle_index])->GetType() != kCircleType) {
         size_t tmp = circle_index;
         circle_index = cube_index;
         cube_index = tmp;
     }
 
     Circle* circle = dynamic_cast<Circle*>(objects[circle_index]);
+    if (circle == NULL) {
+        return kBadCast;
+    }
     Cube* cube = dynamic_cast<Cube*>(objects[cube_index]);
+    if (cube == NULL) {
+        return kBadCast;
+    }
 
     Coordinates center_circle(circle->GetCenterCoordinates());
     Coordinates center_cube(cube->GetCenterCoordinates());
     if ((abs(center_cube[0] - center_circle[0]) < kWidthCube / 2 + kCircleRadius)
         && (abs(center_cube[1] - center_circle[1]) < kWidthCube / 2 + kCircleRadius)) {
+
+        LOG(kError, "Circle cube");
+
         Coordinates speed_circle(circle->GetSpeed());
         Coordinates speed_cube(cube->GetSpeed());
         size_t weight_cube = cube->GetWeight();
@@ -130,22 +131,33 @@ static ReactorError CircleCubeCollision(std::vector<Object*>& objects, size_t ci
 
         delete circle;
         objects.erase(objects.begin() + circle_index);
-        reaction = true;
+        *reaction = true;
         return kDoneReactor;
     }
-    reaction = false;
+    *reaction = false;
     return kDoneReactor;
 }
 
-static ReactorError CubeCubeCollision(std::vector<Object*>& objects, size_t i, size_t j, bool& reaction) {
+static ReactorError CubeCubeCollision(std::vector<Object*>& objects, size_t i, size_t j, bool* reaction) {
+    ASSERT(reaction != NULL, "");
+
     Cube* first = dynamic_cast<Cube*>(objects[i]);
+    if (first == NULL) {
+        return kBadCast;
+    }
     Cube* second = dynamic_cast<Cube*>(objects[j]);
+    if (second == NULL) {
+        return kBadCast;
+    }
 
     Coordinates center_first(first->GetCenterCoordinates());
     Coordinates center_second(second->GetCenterCoordinates());
 
     if ((abs(center_first[0] - center_second[0]) < kWidthCube)
         && (abs(center_first[1] - center_second[1]) < kWidthCube)) {
+
+        LOG(kError, "Cube cube");
+
         Coordinates speed_first(first->GetSpeed());
         size_t weight_first = first->GetWeight();
         Coordinates speed_second(second->GetSpeed());
@@ -169,6 +181,7 @@ static ReactorError CubeCubeCollision(std::vector<Object*>& objects, size_t i, s
                     delete objects.back();
                     objects.pop_back();
                 }
+                *reaction = false;
                 return ReactorError::kBadAllocReaction;
             }
             objects.push_back(new_circle);
@@ -183,14 +196,16 @@ static ReactorError CubeCubeCollision(std::vector<Object*>& objects, size_t i, s
         delete second;
         objects.erase(objects.begin() + i);
         objects.erase(objects.begin() + j - 1);
-        reaction = true;
+        *reaction = true;
         return kDoneReactor;
     }
-    reaction = false;
+    *reaction = false;
     return kDoneReactor;
 }
 
-ReactorError ReactorManager::DrawMolecules(sf::RenderWindow& window) {
+ReactorError ReactorManager::DrawMolecules(sf::RenderWindow* window) {
+    ASSERT(window != NULL, "");
+
     size_t objects_num = objects.size();
 
     const Coordinates& lt_corner = Window::GetLTCorner();
@@ -210,24 +225,28 @@ ReactorError ReactorManager::DrawMolecules(sf::RenderWindow& window) {
             continue;
         }
 
-        size_t object_hash_code = object->GetIDHash();
-        if (object_hash_code == kCircleIDHashCode) {
-            DrawCircle(window, objects[i]);
-            continue;
+        switch (object->GetType()) {
+            case kCircleType: {
+                DrawCircle(window, objects[i]);
+                break;
+            }
+            case kCubeType: {
+                DrawCube(window, objects[i]);
+                break;
+            }
+            default: {
+                objects.erase(objects.begin() + i);
+                objects_num--;
+                i--;
+            }
         }
-        if (object_hash_code == kCubeIDHashCode) {
-            DrawCube(window, objects[i]);
-            continue;
-        }
-        objects.erase(objects.begin() + i);
-        objects_num--;
-        i--;
     }
 
     return kDoneReactor;
 }
 
-ReactorError ReactorManager::DrawCube(sf::RenderWindow& window, const Object* const object) {
+ReactorError ReactorManager::DrawCube(sf::RenderWindow* window, const Object* const object) {
+    ASSERT(window != NULL, "");
     ASSERT(object != NULL, "");
 
     Coordinates center = object->GetCenterCoordinates();
@@ -237,12 +256,13 @@ ReactorError ReactorManager::DrawCube(sf::RenderWindow& window, const Object* co
     rectangle.setPosition(sf::Vector2f(center[0] - kWidthCube / 2 + lt_corner[0],
                                        center[1] - kWidthCube / 2 + lt_corner[1]));
     rectangle.setFillColor(sf::Color::Red);
-    window.draw(rectangle);
+    window->draw(rectangle);
 
     return kDoneReactor;
 }
 
-ReactorError ReactorManager::DrawCircle(sf::RenderWindow& window, const Object* const object) {
+ReactorError ReactorManager::DrawCircle(sf::RenderWindow* window, const Object* const object) {
+    ASSERT(window != NULL, "");
     ASSERT(object != NULL, "");
 
     Coordinates center = object->GetCenterCoordinates();
@@ -259,7 +279,7 @@ ReactorError ReactorManager::DrawCircle(sf::RenderWindow& window, const Object* 
         }
     }
 
-    window.draw(vertices);
+    window->draw(vertices);
 
     return kDoneReactor;
 }
@@ -268,13 +288,9 @@ ReactorError ReactorManager::MoveMolecules() {
     size_t objects_num = objects.size();
 
     for (size_t i = 0; i < objects_num; i++) {
-        size_t object_hash_code = objects[i]->GetIDHash();
-        if (object_hash_code == kCircleIDHashCode) {
-            MoveCircle(objects[i], kCircleRadius);
-        }
-        if (object_hash_code == kCubeIDHashCode) {
-            MoveCircle(objects[i], kWidthCube / 2);
-        }
+        float radius = (objects[i]->GetType() == kCircleType) ? kCircleRadius
+                                                              : kWidthCube / 2;
+        MoveCircle(objects[i], radius);
     }
 
     return kDoneReactor;
@@ -321,7 +337,7 @@ float ReactorManager::CountEnergy() {
     float energy = 0;
     for (size_t i = 0; i < objects_num; i++) {
         float speed_sq = objects[i]->GetSpeed().SqLength();
-        enum ObjectType type = CheckObjectType(objects[i]->GetIDHash());
+        enum ObjectType type = objects[i]->GetType();
         float weight = (type == kCircleType) ? kCircleWeight : (dynamic_cast<Cube*>(objects[i]))->GetWeight();
 
         energy += weight * speed_sq / 2;
@@ -329,3 +345,4 @@ float ReactorManager::CountEnergy() {
 
     return energy;
 }
+

@@ -2,11 +2,16 @@
 #define REACTOR_HPP
 
 #include <vector>
+#include <stdint.h>
+#include <unistd.h>
 
+class ReactorManager;
+
+#include "button.hpp"
 #include "object.hpp"
 #include "vector.hpp"
 #include "window.hpp"
-#include "button.hpp"
+#include "generate_obj.hpp"
 
 const float kWidthPiston = 5.f;
 const size_t kMaxSizeExperiments = 100000;
@@ -15,11 +20,13 @@ const float  kShiftTextPlusVer = 0.2;
 const float  kShiftTextPlusHor = 0.2;
 const float  kShiftTextMinusVer = 0.2;
 const float  kShiftTextMinusHor = 0.3;
+const size_t kShowingButtonSleep = 10000;
 
 enum ReactorError {
     kDoneReactor = 0,
     kBadAllocReaction,
     kCantLoadFont,
+    kBadCast,
 };
 
 class ReactorManager : public Window {
@@ -43,7 +50,7 @@ class ReactorManager : public Window {
             }
         }
 
-        std::vector<Object*>& GetObjectsVector() const {return objects;};
+        std::vector<Object*>& GetObjectsVector() {return objects;};
         float GetPistonX() const {return piston;};
         void SetPistonX(float piston_x) {
             if (piston_x < piston / 2) {
@@ -57,7 +64,9 @@ class ReactorManager : public Window {
             piston = coors[0] - old_rb_x + piston;
         };
 
-        virtual void Draw(sf::RenderWindow& window) override {
+        virtual void Draw(sf::RenderWindow* window) override {
+            ASSERT(window != NULL, "");
+
             const Coordinates& lt_corner = Window::GetLTCorner();
             const Coordinates& rb_corner = Window::GetRBCorner();
 
@@ -65,13 +74,13 @@ class ReactorManager : public Window {
             reactor_background.setPosition(lt_corner[0], lt_corner[1]);
             reactor_background.setFillColor(sf::Color::Cyan);
 
-            window.draw(reactor_background);
+            window->draw(reactor_background);
 
             sf::RectangleShape piston_pic(sf::Vector2f(kWidthPiston, rb_corner[1] - lt_corner[1]));
             piston_pic.setPosition(piston, lt_corner[1]);
             piston_pic.setFillColor(sf::Color::Red);
 
-            window.draw(piston_pic);
+            window->draw(piston_pic);
 
             MoveMolecules();
 
@@ -80,14 +89,20 @@ class ReactorManager : public Window {
             CheckCollisions();
         };
 
-        ReactorError CheckCollisions();
-        ReactorError DrawMolecules(sf::RenderWindow& window);
-        ReactorError MoveMolecules();
-        ReactorError DrawCircle(sf::RenderWindow& window, const Object* const object);
-        ReactorError DrawCube(sf::RenderWindow& window, const Object* const object);
-        ReactorError MoveCircle(Object* const object, float distance);
+        virtual void Move(float shift_x, float shift_y) override {
+            Window::Move(shift_x, shift_y);
+            piston += shift_x;
+        };
 
         float CountEnergy();
+
+    private:
+        ReactorError CheckCollisions();
+        ReactorError DrawMolecules(sf::RenderWindow* window);
+        ReactorError MoveMolecules();
+        ReactorError DrawCircle(sf::RenderWindow* window, const Object* const object);
+        ReactorError DrawCube(sf::RenderWindow* window, const Object* const object);
+        ReactorError MoveCircle(Object* const object, float distance);
 };
 
 class PistonButton : public Button {
@@ -102,28 +117,72 @@ class PistonButton : public Button {
 
         float GetShift() const {return shift;};
 
-        virtual void Draw(sf::RenderWindow& window) override {
-            Coordinates lt_corner(Window::GetLTCorner());
-            Coordinates rb_corner(Window::GetRBCorner());
+        virtual void Action(ReactorManager* reactor) override {
+            ASSERT(reactor != NULL, "");
 
-            sf::RectangleShape button_background(sf::Vector2f(rb_corner[0] - lt_corner[0], rb_corner[1] - lt_corner[1]));
-            button_background.setPosition(lt_corner[0], lt_corner[1]);
-            if (Button::GetPressedInfo()) {
-                button_background.setFillColor(kPressedColor);
-            } else {
-                button_background.setFillColor(kReleaseColor);
+            bool pressed = Button::GetPressedInfo();
+            Button::SetPressedInfo(!pressed);
+            if (!pressed) {
+                reactor->SetPistonX(reactor->GetPistonX() + shift);
             }
+        };
+};
 
-            sf::Font font;
-            if (!font.loadFromFile(kFontFileName)) {
+class NumberMoleculeButton : public Button {
+    private:
+        int64_t delta;
+        ObjectType type;
+
+    public:
+        explicit NumberMoleculeButton(const Button& button, float delta_val, ObjectType type_val)
+            :Button(button) {
+            delta = delta_val;
+            type = type_val;
+        };
+
+        int64_t GetDelta() const {return delta;};
+        ObjectType GetType() const {return type;};
+
+        virtual void Action(ReactorManager* reactor) override {
+            ASSERT(reactor != NULL, "");
+
+            bool pressed = Button::GetPressedInfo();
+            Button::SetPressedInfo(!pressed);
+            if (pressed) {
                 return;
             }
 
-            sf::Text text(Button::GetText(), font, rb_corner[1] - lt_corner[1]);
-            text.setPosition(lt_corner[0], lt_corner[1]);
+            if (delta > 0) {
+                std::vector<Object*>& objects = reactor->GetObjectsVector();
+                float height = reactor->GetRBCorner()[1] - reactor->GetLTCorner()[1];
+                float width  = reactor->GetRBCorner()[0] - reactor->GetLTCorner()[0];
+                switch(type) {
+                    case kCircleType: {
+                        GenerateCircleObjects(objects, width, height, delta);
+                        return;
+                    }
+                    case kCubeType: {
+                        GenerateCubeObjects(objects, width, height, delta);
+                        return;
+                    }
+                    default:
+                        return;
+                }
+            }
 
-            window.draw(button_background);
-            window.draw(text);
+            int64_t deleted_num = - delta;
+
+            std::vector<Object*>& objects = reactor->GetObjectsVector();
+            size_t objects_num = objects.size();
+            for(size_t i = 0; (i < objects_num) && (deleted_num > 0); i++) {
+                if (objects[i]->GetType() == type) {
+                    delete objects[i];
+                    objects.erase(objects.begin() + i);
+                    objects_num--;
+                    i--;
+                    deleted_num--;
+                }
+            }
         };
 };
 

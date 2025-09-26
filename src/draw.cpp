@@ -33,9 +33,9 @@ RendererError Renderer::ShowWindow() {
 
         window.draw(background);
 
-        panel_control.Draw(window);
+        panel_control.Draw(&window);
 
-        reactor_manager.Draw(window);
+        reactor_manager.Draw(&window);
         float energy = reactor_manager.CountEnergy();
         std::vector<float>& energies = graph_manager.GetValues();
         if (energies.size() == kMaxSizeExperiments) {
@@ -50,7 +50,7 @@ RendererError Renderer::ShowWindow() {
             graph_manager.SetMinVal(energy);
         }
 
-        graph_manager.Draw(window);
+        graph_manager.Draw(&window);
 
         usleep(kTimeSleep);
 
@@ -81,7 +81,8 @@ RendererError Renderer::AnalyseKey(const sf::Event event) {
         if(pressed_button != NULL) {
             mouse_x = 0;
             mouse_y = 0;
-            return PistonButtonAction(pressed_button);
+            pressed_button->Action(&reactor_manager);
+            return kDoneRenderer;
         }
 
         moving = true;
