@@ -7,10 +7,10 @@
 #include "window.hpp"
 #include "my_assert.h"
 
-const sf::Color kDefaultButtonColor = sf::Color::Blue;
-const sf::Color kPressedColor = sf::Color::Green;
-const sf::Color kReleaseColor = sf::Color::Red;
-const sf::Color kPanelColor = sf::Color::White;
+static const sf::Color kDefaultButtonColor = sf::Color::Blue;
+static const sf::Color kPressedColor = sf::Color::Green;
+static const sf::Color kReleaseColor = sf::Color::Red;
+static const sf::Color kPanelColor = sf::Color::White;
 
 class Button : public Window {
     private:

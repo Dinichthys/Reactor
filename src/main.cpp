@@ -80,7 +80,7 @@ int main() {
     buttons.push_back(&minus_cube);
     PanelControl panel_control(Coordinates(2, 200, 500), Coordinates(2, 700, 850), buttons);
 
-    Renderer renderer(1080, 720, reactor, graph, panel_control);
+    Renderer renderer(kStartWidth, kStartHeight, reactor, graph, panel_control);
 
     enum RendererError result = renderer.ShowWindow();
     if (result != kDoneRenderer) {

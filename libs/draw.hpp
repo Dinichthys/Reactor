@@ -14,10 +14,12 @@
 
 #include "my_assert.h"
 
-const char* const kWindowName = "Reactor";
-const size_t kTimeSleep = 10000;
-const size_t kCharacterSize = 100;
-const sf::Color kColorCircle = sf::Color::Green;
+static const unsigned int kStartHeight = 720;
+static const unsigned int kStartWidth = 1080;
+static const char* const kWindowName = "Reactor";
+static const size_t kTimeSleep = 10000;
+static const size_t kCharacterSize = 100;
+static const sf::Color kColorCircle = sf::Color::Green;
 
 enum RendererError {
     kDoneRenderer = 0,
@@ -63,6 +65,7 @@ class Renderer {
 
     private:
         RendererError AnalyseKey(const sf::Event event);
+        void GetMousePosition(int* mouse_x, int* mouse_y);
         Window* IdentifyWindow(float x, float y);
         Button* IdentifyButton(float x, float y);
         RendererError PistonButtonAction(Button* piston_button);

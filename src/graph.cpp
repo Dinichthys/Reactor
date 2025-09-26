@@ -52,22 +52,6 @@ GraphError GraphManager::DrawAxis(sf::RenderWindow* window) {
     float start_point_x = lt_corner_x + step;
     float start_point_y = rb_corner_y - step;
 
-    if ((start_point_x > lt_corner_x) &&
-        (start_point_x < rb_corner_x)) {
-        sf::RectangleShape axis(sf::Vector2f(kAxisWidth, rb_corner_y - lt_corner_y));
-        axis.setPosition(start_point_x, lt_corner_y);
-        axis.setFillColor(sf::Color::Blue);
-        window->draw(axis);
-    }
-
-    if ((start_point_y > lt_corner_y) &&
-        (start_point_y < rb_corner_y)) {
-        sf::RectangleShape axis(sf::Vector2f(rb_corner_x - lt_corner_x, kAxisWidth));
-        axis.setPosition(lt_corner_x, start_point_y - kAxisWidth);
-        axis.setFillColor(sf::Color::Blue);
-        window->draw(axis);
-    }
-
     sf::RectangleShape line({rb_corner_x - lt_corner_x, kGridWidth});
     sf::Color grid_line_color = sf::Color::Blue;
     grid_line_color.a = kGridBrightness;
@@ -85,6 +69,38 @@ GraphError GraphManager::DrawAxis(sf::RenderWindow* window) {
         line.setPosition({line_x, lt_corner_y});
         window->draw(line);
     }
+
+    grid_line_color.a = kMaxBrightness;
+    line.setFillColor(grid_line_color);
+    if ((start_point_x > lt_corner_x) &&
+        (start_point_x < rb_corner_x)) {
+        line.setSize(sf::Vector2f(kAxisWidth, rb_corner_y - lt_corner_y));
+        line.setPosition(start_point_x, lt_corner_y);
+        line.setFillColor(sf::Color::Blue);
+        window->draw(line);
+    }
+
+    line.setSize({kAxisWidth, kArrowLenPercentage * (rb_corner_y - lt_corner_y)});
+    line.rotate(kArrowAngle);
+    window->draw(line);
+    line.rotate(360 - 2 * kArrowAngle);
+    window->draw(line);
+
+    if ((start_point_y > lt_corner_y) &&
+        (start_point_y < rb_corner_y)) {
+        line.setRotation(0);
+        line.setSize(sf::Vector2f(rb_corner_x - lt_corner_x, kAxisWidth));
+        line.setPosition(lt_corner_x, start_point_y - kAxisWidth);
+        line.setFillColor(sf::Color::Blue);
+        window->draw(line);
+    }
+
+    line.setPosition(rb_corner_x, start_point_y);
+    line.setSize({kArrowLenPercentage * (rb_corner_x - lt_corner_x), kAxisWidth});
+    line.rotate(180 - kArrowAngle);
+    window->draw(line);
+    line.rotate(2 * kArrowAngle);
+    window->draw(line);
 
     return kDoneGraph;
 }

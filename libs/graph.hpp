@@ -8,12 +8,13 @@
 #include "vector.hpp"
 #include "window.hpp"
 
-const float kAxisWidth = 2.f;
-const float kStep      = 1.f;
-const float kGridWidth = 1.f;
-const int8_t kGridBrightness = 63;
-const float kMinDifferenceScale = 1.1f;
-const float kAxisNum = 10.f;
+static const int kMaxBrightness = 255;
+static const float kAxisWidth = 2.f;
+static const float kStep = 1.f;
+static const float kGridWidth = 1.f;
+static const int8_t kGridBrightness = 63;
+static const float kMinDifferenceScale = 1.1f;
+static const float kAxisNum = 10.f;
 
 enum GraphError {
     kDoneGraph = 0,

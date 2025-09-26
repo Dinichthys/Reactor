@@ -3,10 +3,9 @@
 
 #include "vector.hpp"
 
-const float kWidthCube = 5;
-
-const float kCircleRadius = 5;
-const size_t kCircleWeight = 1;
+static const float kWidthCube = 5;
+static const float kCircleRadius = 5;
+static const size_t kCircleWeight = 1;
 
 enum ObjectType {
     kNone = -1,

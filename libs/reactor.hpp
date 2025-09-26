@@ -13,14 +13,14 @@ class ReactorManager;
 #include "window.hpp"
 #include "generate_obj.hpp"
 
-const float kWidthPiston = 5.f;
-const size_t kMaxSizeExperiments = 100000;
-const char* const kFontFileName = "data/font.ttf";
-const float  kShiftTextPlusVer = 0.2;
-const float  kShiftTextPlusHor = 0.2;
-const float  kShiftTextMinusVer = 0.2;
-const float  kShiftTextMinusHor = 0.3;
-const size_t kShowingButtonSleep = 10000;
+static const float kWidthPiston = 5.f;
+static const size_t kMaxSizeExperiments = 100000;
+static const char* const kFontFileName = "data/font.ttf";
+static const float  kShiftTextPlusVer = 0.2;
+static const float  kShiftTextPlusHor = 0.2;
+static const float  kShiftTextMinusVer = 0.2;
+static const float  kShiftTextMinusHor = 0.3;
+static const size_t kShowingButtonSleep = 10000;
 
 enum ReactorError {
     kDoneReactor = 0,

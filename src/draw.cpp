@@ -75,8 +75,7 @@ RendererError Renderer::AnalyseKey(const sf::Event event) {
             return kDoneRenderer;
         }
 
-        mouse_x = sf::Mouse::getPosition(window).x;
-        mouse_y = sf::Mouse::getPosition(window).y;
+        GetMousePosition(&mouse_x, &mouse_y);
         Button* pressed_button = IdentifyButton(mouse_x, mouse_y);
         if(pressed_button != NULL) {
             mouse_x = 0;
@@ -100,13 +99,22 @@ RendererError Renderer::AnalyseKey(const sf::Event event) {
     if ((moving) && (event.type == sf::Event::MouseMoved)) {
         int old_x = mouse_x;
         int old_y = mouse_y;
-        mouse_x = sf::Mouse::getPosition(window).x;
-        mouse_y = sf::Mouse::getPosition(window).y;
+        GetMousePosition(&mouse_x, &mouse_y);
 
         moving_window->Move((float)(mouse_x - old_x), (float)(mouse_y - old_y));
     }
 
     return kDoneRenderer;
+}
+
+void Renderer::GetMousePosition(int* mouse_x, int* mouse_y) {
+    ASSERT(mouse_x != NULL, "");
+    ASSERT(mouse_y != NULL, "");
+
+    float scale_x = ((float)window.getSize().x / (float)kStartWidth);
+    float scale_y = ((float)window.getSize().y / (float)kStartHeight);
+    *mouse_x = (int)((float)sf::Mouse::getPosition(window).x / scale_x);
+    *mouse_y = (int)((float)sf::Mouse::getPosition(window).y / scale_y);
 }
 
 Window* Renderer::IdentifyWindow(float x, float y) {
