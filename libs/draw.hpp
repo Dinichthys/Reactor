@@ -19,7 +19,6 @@ static const unsigned int kStartWidth = 1080;
 static const char* const kWindowName = "Reactor";
 static const size_t kTimeSleep = 10000;
 static const size_t kCharacterSize = 100;
-static const sf::Color kColorCircle = sf::Color::Green;
 
 enum RendererError {
     kDoneRenderer = 0,
@@ -27,46 +26,34 @@ enum RendererError {
     kCantLoadFontRenderer,
 };
 
-class Renderer {
+class UI : public WidgetContainer {
     private:
         sf::RenderWindow window;
-        unsigned int screen_width;
-        unsigned int screen_height;
-
-        ReactorManager reactor_manager;
-        GraphManager graph_manager;
-
-        PanelControl panel_control;
 
     public:
-        explicit Renderer(unsigned int width, unsigned int height,
-                          const ReactorManager& reactor,
-                          const GraphManager& graph,
-                          const PanelControl& panel)
-            : window(sf::VideoMode ({width, height}), kWindowName),
-              reactor_manager(reactor),
-              graph_manager(graph),
-              panel_control(panel) {
-            screen_width = width;
-            screen_height = height;
+        explicit UI(unsigned int width, unsigned int height,
+                     const std::vector<Widget*>& children)
+            : WidgetContainer(Coordinates(2, 0, 0), width, height),
+              window(sf::VideoMode ({width, height}), kWindowName) {
+            std::vector<Widget*>& children_ = WidgetContainer::GetChildren();
+
+            size_t children_num = children.size();
+            for (size_t i = 0; i < children_num; i++) {
+                children_.push_back(children[i]);
+            }
         };
-        ~Renderer() {
+        ~UI() {
             if (window.isOpen()) {
                 window.close();
             }
-
-            screen_width = 0;
-            screen_height = 0;
         };
 
         RendererError ShowWindow();
 
-        ReactorManager& GetReactorManager() {return reactor_manager;};
-
     private:
         RendererError AnalyseKey(const sf::Event event);
         void GetMousePosition(int* mouse_x, int* mouse_y);
-        Window* IdentifyWindow(float x, float y);
+        Widget* IdentifyWindow(float x, float y);
         Button* IdentifyButton(float x, float y);
         RendererError PistonButtonAction(Button* piston_button);
 };

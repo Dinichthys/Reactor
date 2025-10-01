@@ -17,8 +17,8 @@
 void GraphManager::Draw(sf::RenderWindow* window) {
     ASSERT(window != NULL, "");
 
-    Coordinates lt_corner(Window::GetLTCorner());
-    Coordinates rb_corner(Window::GetRBCorner());
+    Coordinates lt_corner(Widget::GetLTCornerAbs());
+    Coordinates rb_corner(Widget::GetRBCornerAbs());
 
     LOG(kDebug, "Starting drawing coordinates system");
 
@@ -38,8 +38,8 @@ void GraphManager::Draw(sf::RenderWindow* window) {
 GraphError GraphManager::DrawAxis(sf::RenderWindow* window) {
     ASSERT(window != NULL, "");
 
-    Coordinates lt_corner(Window::GetLTCorner());
-    Coordinates rb_corner(Window::GetRBCorner());
+    Coordinates lt_corner(Widget::GetLTCornerAbs());
+    Coordinates rb_corner(Widget::GetRBCornerAbs());
 
     LOG(kDebug, "Starting drawing axis");
 
@@ -108,8 +108,8 @@ GraphError GraphManager::DrawAxis(sf::RenderWindow* window) {
 GraphError GraphManager::DrawGraph(sf::RenderWindow* window) {
     ASSERT(window != NULL, "");
 
-    Coordinates lt_corner(Window::GetLTCorner());
-    Coordinates rb_corner(Window::GetRBCorner());
+    Coordinates lt_corner(Widget::GetLTCornerAbs());
+    Coordinates rb_corner(Widget::GetRBCornerAbs());
 
     float rb_corner_x = rb_corner.GetCoordinate(0);
     float rb_corner_y = rb_corner.GetCoordinate(1);
@@ -121,7 +121,7 @@ GraphError GraphManager::DrawGraph(sf::RenderWindow* window) {
     float start_point_y = rb_corner_y - step_axis;
 
     float step = (rb_corner_x - start_point_x) / points.size();
-    float scale = (lt_corner_y - start_point_y) / (max * kMinDifferenceScale);
+    float scale = (lt_corner_y - start_point_y) / (max_ * kMinDifferenceScale);
 
     size_t vertex_size = points.size();
     size_t point_index = 0;
@@ -133,8 +133,6 @@ GraphError GraphManager::DrawGraph(sf::RenderWindow* window) {
         (x < rb_corner_x) && (val_index < vertex_size); x += step) {
         float y = points[val_index] * scale;
         val_index++;
-
-        LOG(kDebug, "Y (val) = %f\n", y);
 
         if ((y > lt_corner_y - start_point_y) &&
             (y < rb_corner_y - start_point_y)) {

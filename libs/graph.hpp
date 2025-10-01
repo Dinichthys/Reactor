@@ -8,6 +8,8 @@
 #include "vector.hpp"
 #include "window.hpp"
 
+static const float kWidthGraph = 500;
+static const float kHeightGraph = 400;
 static const int kMaxBrightness = 255;
 static const float kAxisWidth = 2.f;
 static const float kStep = 1.f;
@@ -20,23 +22,23 @@ enum GraphError {
     kDoneGraph = 0,
 };
 
-class GraphManager : public Window  {
+class GraphManager : public Widget  {
     private:
         std::vector<float> points;
 
-        float max = FLT_MIN;
-        float min = FLT_MAX;
+        float max_ = FLT_MIN;
+        float min_ = FLT_MAX;
 
     public:
-        explicit GraphManager(const Coordinates& lt_corner, const Coordinates& rb_corner)
-            :Window(lt_corner, rb_corner) {};
+        explicit GraphManager(const Coordinates& lt_corner, float width, float height, Widget* parent = NULL)
+            :Widget(lt_corner, width, height, parent) {};
 
         std::vector<float>& GetValues() {return points;};
-        float GetMaxVal() {return max;};
-        float GetMinVal() {return min;};
+        float GetMaxVal() {return max_;};
+        float GetMinVal() {return min_;};
 
-        void SetMaxVal(float new_max) {max = new_max;};
-        void SetMinVal(float new_min) {min = new_min;};
+        void SetMaxVal(float new_max) {max_ = new_max;};
+        void SetMinVal(float new_min) {min_ = new_min;};
 
         virtual void Draw(sf::RenderWindow* window) override;
         GraphError DrawAxis(sf::RenderWindow* window);

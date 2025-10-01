@@ -6,40 +6,60 @@
 #include "reactor.hpp"
 #include "window.hpp"
 #include "my_assert.h"
+#include "text.hpp"
 
 static const sf::Color kDefaultButtonColor = sf::Color::Blue;
 static const sf::Color kPressedColor = sf::Color::Green;
 static const sf::Color kReleaseColor = sf::Color::Red;
 static const sf::Color kPanelColor = sf::Color::White;
 
-class Button : public Window {
+class Button : public WidgetContainer {
     private:
         bool pressed;
-        const char* const text;
-        sf::Font font;
 
     public:
-        explicit Button(const Coordinates& lt_corner, const Coordinates& rb_corner,
-                        const char* text_val, const char* file_name)
-            :Window(lt_corner, rb_corner), text(text_val) {
-            ASSERT(text_val != NULL, "");
-            ASSERT(file_name != NULL, "");
+        explicit Button(const Button& other)
+            :WidgetContainer(other) {
+            pressed = other.GetPressedInfo();
 
+            Text* text = dynamic_cast<Text*>(other.GetChild(0));
+            if (text == NULL) {
+                return;
+            }
+
+            WidgetContainer::SetChild(0, new(std::nothrow) Text(*text));
+            if (WidgetContainer::GetChild(0) == NULL) {
+                throw std::runtime_error("Can't do copy constructor for Button\n");
+            }
+        };
+
+        explicit Button(const Coordinates& lt_corner, float width, float height,
+                        const char* text = NULL, const char* file_name = NULL, Widget* parent = NULL)
+            :WidgetContainer(lt_corner, width, height) {
             pressed = false;
-            font.loadFromFile(file_name);
+
+            if ((text != NULL) && (file_name != NULL)) {
+                WidgetContainer::AddChild(new(std::nothrow) Text(Coordinates(2, 0, 0), width, height, this, text, file_name));
+                if (WidgetContainer::GetChildren().back() == NULL) {
+                    throw std::runtime_error("Bad allocation for text");
+                }
+            }
+
+            Widget::SetParent(parent);
+            WidgetContainer::SetParentToChildren();
         };
 
         bool GetPressedInfo() const {return pressed;};
-        const char* GetText() const {return text;};
         void SetPressedInfo(bool new_pressed) {pressed = new_pressed;};
 
         virtual void Draw(sf::RenderWindow* window) {
             ASSERT(window != NULL, "");
 
-            Coordinates lt_corner(Window::GetLTCorner());
-            Coordinates rb_corner(Window::GetRBCorner());
+            Coordinates lt_corner(Widget::GetLTCornerAbs());
+            float width = Widget::GetWidth();
+            float height = Widget::GetHeight();
 
-            sf::RectangleShape button_background(sf::Vector2f(rb_corner[0] - lt_corner[0], rb_corner[1] - lt_corner[1]));
+            sf::RectangleShape button_background(sf::Vector2f(width, height));
             button_background.setPosition(lt_corner[0], lt_corner[1]);
             if (Button::GetPressedInfo()) {
                 button_background.setFillColor(kPressedColor);
@@ -47,55 +67,55 @@ class Button : public Window {
                 button_background.setFillColor(kReleaseColor);
             }
 
-            sf::Text text(Button::GetText(), font, rb_corner[1] - lt_corner[1]);
-            text.setPosition(lt_corner[0], lt_corner[1]);
-
             window->draw(button_background);
-            window->draw(text);
+
+            WidgetContainer::Draw(window);
         };
 
-        virtual void Action(ReactorManager* reactor) {};
+        virtual bool OnMousePress(const Coordinates& mouse_pos) override {
+            Coordinates lt_corner(Widget::GetLTCornerLoc());
+            float width = Widget::GetWidth();
+            float height = Widget::GetHeight();
+            if ((mouse_pos[0] > lt_corner[0])
+                && (mouse_pos[1] > lt_corner[1])
+                && (mouse_pos[0] < width)
+                && (mouse_pos[1] < height)) {
+                return true;
+            }
+
+            return false;
+        };
 };
 
-class PanelControl : public Window {
-    private:
-        std::vector<Button*> buttons;
-
+class PanelControl : public WidgetContainer {
     public:
-        explicit PanelControl(Coordinates lt_corner, Coordinates rb_corner, const std::vector<Button*>& buttons_val)
-            :Window(lt_corner, rb_corner) {
-            size_t length = buttons_val.size();
-            for (size_t i = 0; i < length; i++) {
-                buttons.push_back(buttons_val[i]);
-            }
+        explicit PanelControl(const PanelControl& other)
+            :WidgetContainer(other) {
+            Widget::SetParent(other.GetParent());
+            WidgetContainer::SetParentToChildren();
         };
 
-        std::vector<Button*>& GetButtons() {return buttons;};
+        explicit PanelControl(const Coordinates& lt_corner, float width, float height,
+                              const std::vector<Widget*>* buttons = NULL, Widget* parent = NULL)
+            :WidgetContainer(lt_corner, width, height, buttons) {
+            Widget::SetParent(parent);
+            WidgetContainer::SetParentToChildren();
+        };
 
         virtual void Draw(sf::RenderWindow* window) override {
             ASSERT(window != NULL, "");
 
-            Coordinates lt_corner(Window::GetLTCorner());
-            Coordinates rb_corner(Window::GetRBCorner());
+            Coordinates lt_corner(Widget::GetLTCornerAbs());
+            float width = Widget::GetWidth();
+            float height = Widget::GetHeight();
 
-            sf::RectangleShape button_background(sf::Vector2f(rb_corner[0] - lt_corner[0], rb_corner[1] - lt_corner[1]));
+            sf::RectangleShape button_background(sf::Vector2f(width, height));
             button_background.setPosition(lt_corner[0], lt_corner[1]);
             button_background.setFillColor(kPanelColor);
 
             window->draw(button_background);
 
-            size_t buttons_num = buttons.size();
-            for (size_t i = 0; i < buttons_num; i++) {
-                buttons[i]->Draw(window);
-            }
-        };
-        virtual void Move(float shift_x, float shift_y) override {
-            Window::Move(shift_x, shift_y);
-
-            size_t buttons_num = buttons.size();
-            for (size_t i = 0; i < buttons_num; i++) {
-                buttons[i]->Move(shift_x, shift_y);
-            }
+            WidgetContainer::Draw(window);
         };
 };
 

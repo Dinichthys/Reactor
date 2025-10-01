@@ -11,7 +11,9 @@ enum GeneratingError {
     kBadAllocGenerating,
 };
 
-GeneratingError GenerateCircleObjects(std::vector<Object*>& objects, float width, float height, size_t number);
-GeneratingError GenerateCubeObjects(std::vector<Object*>& objects, float width, float height, size_t number);
+GeneratingError GenerateCircleObjects(std::vector<Widget*>& objects, float width, float height, size_t number,
+                                      Widget* reactor);
+GeneratingError GenerateCubeObjects(std::vector<Widget*>& objects, float width, float height, size_t number,
+                                    Widget* reactor);
 
 #endif // GENERATE_OBJ
