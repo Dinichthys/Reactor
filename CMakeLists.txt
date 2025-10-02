@@ -8,6 +8,7 @@ add_executable (${PROJECT_NAME}
     src/reactor.cpp
     src/generate_obj.cpp
 
+    libs/GraphLib/src/graphics_sfml.cpp
     libs/geometry/src/vector.cpp
     libs/geometry/src/matrix.cpp
     libs/MyLib/Logger/logging.cpp
@@ -17,6 +18,7 @@ add_executable (${PROJECT_NAME}
 target_include_directories (${PROJECT_NAME}
     PRIVATE
         libs
+        libs/GraphLib/include
         libs/geometry/include
         libs/MyLib
         libs/MyLib/Logger

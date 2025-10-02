@@ -3,10 +3,16 @@
 #include <iostream>
 #include <vector>
 
+#include <SFML/Graphics/Vertex.hpp>
+#include <SFML/Graphics.hpp>
+#include <SFML/Window.hpp>
+#include <SFML/System.hpp>
+
 #include "object.hpp"
 #include "generate_obj.hpp"
 #include "draw.hpp"
 #include "clock.hpp"
+#include "reactor_button.hpp"
 
 #include "logging.h"
 
@@ -58,7 +64,7 @@ int main() {
         }
     }
 
-    GraphManager graph(Coordinates(2, 600, 300), kWidthGraph, kHeightGraph);
+    GraphManager graph(Coordinates(2, 600, 300), kWidthGraph / 2, kHeightGraph / 2);
 
     float button_width = 205;
     float button_height = 50;

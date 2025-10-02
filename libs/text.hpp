@@ -1,6 +1,8 @@
 #ifndef TEXT_HPP
 #define TEXT_HPP
 
+#include "graphics.hpp"
+
 #include "window.hpp"
 
 class Text : public Widget {
@@ -18,7 +20,7 @@ class Text : public Widget {
             font_.loadFromFile(file_name);
         };
 
-        virtual void Draw(sf::RenderWindow* window) override {
+        virtual void Draw(graphics::RenderWindow* window) override {
             ASSERT(window != NULL, "");
 
             Coordinates lt_corner(Widget::GetLTCornerAbs());
@@ -27,7 +29,7 @@ class Text : public Widget {
             sf::Text text(text_, font_, height);
             text.setPosition(lt_corner[0], lt_corner[1]);
 
-            window->draw(text);
+            window->Draw(text);
         };
 };
 
