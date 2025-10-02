@@ -1,11 +1,6 @@
 #ifndef DRAW_HPP
 #define DRAW_HPP
 
-#include <SFML/Graphics/Vertex.hpp>
-#include <SFML/Graphics.hpp>
-#include <SFML/Window.hpp>
-#include <SFML/System.hpp>
-
 #include "graphics.hpp"
 
 #include "reactor.hpp"
@@ -65,7 +60,7 @@ class UI : public WidgetContainer {
         };
 
     private:
-        RendererError AnalyzeKey(const sf::Event event);
+        RendererError AnalyzeKey(const graphics::Event& event);
         void GetMousePosition(Coordinates& mouse_pos);
 };
 

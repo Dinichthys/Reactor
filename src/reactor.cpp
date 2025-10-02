@@ -6,11 +6,6 @@
 
 #include "graphics.hpp"
 
-#include <SFML/Graphics/Vertex.hpp>
-#include <SFML/Graphics.hpp>
-#include <SFML/Window.hpp>
-#include <SFML/System.hpp>
-
 #include "object.hpp"
 
 #include "logging.h"

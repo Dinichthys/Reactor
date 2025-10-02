@@ -8,16 +8,14 @@
 class Text : public Widget {
     private:
         const char* const text_;
-        sf::Font font_;
+        const char* const font_file_name_;
 
     public:
         explicit Text(const Coordinates& lt_corner, float width, float height, Widget* parent,
                         const char* text_val, const char* file_name)
-            :Widget(lt_corner, width, height, parent), text_(text_val) {
+            :Widget(lt_corner, width, height, parent), text_(text_val), font_file_name_(file_name) {
             ASSERT(text_val != NULL, "");
             ASSERT(file_name != NULL, "");
-
-            font_.loadFromFile(file_name);
         };
 
         virtual void Draw(graphics::RenderWindow* window) override {
@@ -26,8 +24,8 @@ class Text : public Widget {
             Coordinates lt_corner(Widget::GetLTCornerAbs());
             float height = Widget::GetHeight();
 
-            sf::Text text(text_, font_, height);
-            text.setPosition(lt_corner[0], lt_corner[1]);
+            graphics::Text text(text_, font_file_name_, height);
+            text.SetPosition(lt_corner);
 
             window->Draw(text);
         };

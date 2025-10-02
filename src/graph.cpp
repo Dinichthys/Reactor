@@ -5,11 +5,6 @@
 
 #include "graphics.hpp"
 
-#include <SFML/Graphics/Vertex.hpp>
-#include <SFML/Graphics.hpp>
-#include <SFML/Window.hpp>
-#include <SFML/System.hpp>
-
 #include "vector.hpp"
 #include "draw.hpp"
 
@@ -126,7 +121,7 @@ GraphError GraphManager::DrawGraph(graphics::RenderWindow* window) {
     size_t vertex_size = points.size();
     size_t point_index = 0;
 
-    sf::VertexArray vertices (sf::PrimitiveType::Points, vertex_size);
+    graphics::VertexArray vertices (vertex_size);
 
     size_t val_index = 0;
     for (float x = start_point_x;
@@ -136,9 +131,9 @@ GraphError GraphManager::DrawGraph(graphics::RenderWindow* window) {
 
         if ((y > lt_corner_y - start_point_y) &&
             (y < rb_corner_y - start_point_y)) {
-            vertices [point_index].position = {x, y + start_point_y};
+            vertices.SetPixelPosition(point_index, Coordinates(2, x, y + start_point_y));
 
-            vertices [point_index].color = sf::Color::Red;
+            vertices.SetPixelColor(point_index, graphics::kColorRed);
 
             point_index++;
         }

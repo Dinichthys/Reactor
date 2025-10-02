@@ -4,10 +4,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#include <SFML/Graphics/Vertex.hpp>
-#include <SFML/Graphics.hpp>
-#include <SFML/Window.hpp>
-#include <SFML/System.hpp>
+#include "graphics.hpp"
 
 #include "object.hpp"
 
@@ -19,10 +16,10 @@ RendererError UI::ShowWindow() {
     background.SetPosition(Coordinates(2, 0.f, 0.f));
     background.SetFillColor(graphics::kColorBlack);
 
-    sf::Event event;
+    graphics::Event event;
     while (window.IsOpen()) {
         if (window.PollEvent(event)) {
-            if (event.type == sf::Event::Closed) {
+            if (event.GetType() == graphics::kClosed) {
                 window.Close();
                 break;
             }
@@ -44,41 +41,48 @@ RendererError UI::ShowWindow() {
 
     return kDoneRenderer;
 }
-#include "clock.hpp"
-RendererError UI::AnalyzeKey(const sf::Event event) {
+
+RendererError UI::AnalyzeKey(const graphics::Event& event) {
     static Coordinates mouse_pos(2, 0, 0);
     static Widget* moving_window = NULL;
 
-    if (event.type == sf::Event::MouseButtonPressed) {
-        GetMousePosition(mouse_pos);
+    switch(event.GetType()) {
+        case(graphics::kMouseButtonPressed) : {
+            GetMousePosition(mouse_pos);
 
-        OnMousePress(mouse_pos, &moving_window);
+            OnMousePress(mouse_pos, &moving_window);
 
-        LOG(kDebug, "Coordinates X = %f, Y = %f\n", mouse_pos[0], mouse_pos[1]);
+            LOG(kDebug, "Coordinates X = %f, Y = %f\n", mouse_pos[0], mouse_pos[1]);
 
-        return kDoneRenderer;
+            break;
+        }
+        case(graphics::kMouseButtonReleased) : {
+            moving_window = NULL;
+
+            GetMousePosition(mouse_pos);
+
+            OnMouseRelease(mouse_pos);
+
+            LOG(kDebug, "Coordinates X = %f, Y = %f\n", mouse_pos[0], mouse_pos[1]);
+
+            break;
+        }
+        case(graphics::kMouseMoved) : {
+            if (moving_window == NULL) {
+                break;
+            }
+
+            float old_x = mouse_pos[0];
+            float old_y = mouse_pos[1];
+            GetMousePosition(mouse_pos);
+
+            moving_window->OnMouseMove(mouse_pos[0] - old_x, mouse_pos[1] - old_y);
+
+            break;
+        }
+        default:
+            break;
     }
-
-    if (event.type == sf::Event::MouseButtonReleased) {
-        moving_window = NULL;
-
-        GetMousePosition(mouse_pos);
-
-        OnMouseRelease(mouse_pos);
-
-        LOG(kDebug, "Coordinates X = %f, Y = %f\n", mouse_pos[0], mouse_pos[1]);
-
-        return kDoneRenderer;
-    }
-
-    if ((moving_window != NULL) && (event.type == sf::Event::MouseMoved)) {
-        float old_x = mouse_pos[0];
-        float old_y = mouse_pos[1];
-        GetMousePosition(mouse_pos);
-
-        moving_window->OnMouseMove(mouse_pos[0] - old_x, mouse_pos[1] - old_y);
-    }
-
 
     return kDoneRenderer;
 }

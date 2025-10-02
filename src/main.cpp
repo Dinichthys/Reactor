@@ -3,11 +3,6 @@
 #include <iostream>
 #include <vector>
 
-#include <SFML/Graphics/Vertex.hpp>
-#include <SFML/Graphics.hpp>
-#include <SFML/Window.hpp>
-#include <SFML/System.hpp>
-
 #include "object.hpp"
 #include "generate_obj.hpp"
 #include "draw.hpp"

@@ -4,6 +4,7 @@
 #include <vector>
 #include <stdint.h>
 #include <unistd.h>
+#include <stdexcept>
 
 #include "graphics.hpp"
 

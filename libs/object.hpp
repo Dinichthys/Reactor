@@ -10,7 +10,7 @@ static const float kWidthCube = 5;
 static const float kCircleRadius = 5;
 static const size_t kCircleWeight = 1;
 
-static const sf::Color kColorCircle = sf::Color::Green;
+static const graphics::Color kColorCircle = graphics::kColorGreen;
 static const graphics::Color kColorCube = graphics::kColorRed;
 
 enum ObjectType {
@@ -87,13 +87,13 @@ class Circle : virtual public Object {
             ASSERT(window != NULL, "");
 
             Coordinates center = Object::GetCenterCoordinatesAbs();
-            sf::VertexArray vertices (sf::PrimitiveType::Points, (size_t) (4 * kCircleRadius * kCircleRadius));
+            graphics::VertexArray vertices ((size_t) (4 * kCircleRadius * kCircleRadius));
             size_t vertex_index = 0;
             for (float i = -kCircleRadius; i < kCircleRadius; i++) {
                 for (float j = -kCircleRadius; j < kCircleRadius; j++) {
                     if (i * i + j * j < kCircleRadius * kCircleRadius) {
-                        vertices[vertex_index].position = {center[0] + j, center[1] + i};
-                        vertices[vertex_index].color = kColorCircle;
+                        vertices.SetPixelPosition(vertex_index, Coordinates(2, center[0] + j, center[1] + i));
+                        vertices.SetPixelColor(vertex_index, kColorCircle);
                         vertex_index++;
                     }
                 }

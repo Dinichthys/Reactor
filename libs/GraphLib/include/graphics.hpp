@@ -3,11 +3,6 @@
 
 #include <stdlib.h>
 
-#include <SFML/Graphics/Vertex.hpp>
-#include <SFML/Graphics.hpp>
-#include <SFML/Window.hpp>
-#include <SFML/System.hpp>
-
 #include "vector.hpp"
 
 namespace graphics {
@@ -39,6 +34,21 @@ namespace graphics {
     const Color kColorYellow(255, 255, 0);
     const Color kColorBlack(0, 0, 0);
 
+    class Text {
+        private:
+            void* font_;
+            void* text_;
+
+        public:
+            explicit Text(const char* text, const char* font_file_name, unsigned char height);
+
+            ~Text();
+
+            void SetPosition(const Coordinates& lt_corner) const;
+
+            void* GetText() const {return text_;};
+    };
+
     class VertexArray {
         private:
             void* vertex_array_;
@@ -47,6 +57,11 @@ namespace graphics {
             explicit VertexArray(size_t size);
 
             ~VertexArray();
+
+            void SetPixelPosition(size_t index, const Coordinates& pos) const;
+            void SetPixelColor(size_t index, const Color& color) const;
+
+            void* GetVertexArray() const {return vertex_array_;};
     };
 
     class RectangleShape {
@@ -71,6 +86,28 @@ namespace graphics {
             void SetFillColor(const graphics::Color color) const;
     };
 
+    enum EventType {
+        kNoneEvent = -1,
+        kClosed = 0,
+        kMouseButtonPressed,
+        kMouseButtonReleased,
+        kMouseMoved,
+        kMaxEventType,
+    };
+
+    class Event {
+        private:
+            enum EventType type_;
+
+        public:
+            explicit Event(enum EventType type = kNoneEvent) {
+                type_ = type;
+            };
+
+            void SetType(enum EventType type) {type_ = type;};
+            enum EventType GetType() const {return type_;};
+    };
+
     class RenderWindow {
         private:
             void* window_;
@@ -89,13 +126,13 @@ namespace graphics {
             float GetWidth() const;
             float GetHeight() const;
 
-            bool PollEvent(sf::Event& event) const;
+            bool PollEvent(graphics::Event& event) const;
 
             Coordinates GetMousePos() const;
 
             void Draw(const graphics::RectangleShape& rect) const;
-            void Draw(const sf::VertexArray& arr) const;
-            void Draw(const sf::Text& text) const;
+            void Draw(const graphics::VertexArray& arr) const;
+            void Draw(const graphics::Text& text) const;
 
             void Display() const;
 

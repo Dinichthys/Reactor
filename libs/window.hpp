@@ -1,11 +1,6 @@
 #ifndef MY_WINDOW_HPP
 #define MY_WINDOW_HPP
 
-#include <SFML/Graphics/Vertex.hpp>
-#include <SFML/Graphics.hpp>
-#include <SFML/Window.hpp>
-#include <SFML/System.hpp>
-
 #include "graphics.hpp"
 
 #include "vector.hpp"
