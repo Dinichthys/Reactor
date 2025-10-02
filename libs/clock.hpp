@@ -5,8 +5,8 @@
 
 #include "window.hpp"
 
-static const graphics::Color kColorClock = graphics::kColorBlue;
-static const graphics::Color kColorArrow = graphics::kColorYellow;
+static const sf::Color kColorClock = sf::Color::Blue;
+static const sf::Color kColorArrow = sf::Color::Yellow;
 
 class Clock : public Widget {
     private:
@@ -17,16 +17,16 @@ class Clock : public Widget {
                        Widget* parent = NULL)
             :Widget(lt_corner, width, height, parent) {};
 
-        virtual void Draw(graphics::RenderWindow* window) override {
+        virtual void Draw(sf::RenderWindow* window) override {
             const Coordinates lt_corner(Widget::GetLTCornerAbs());
             float width = Widget::GetWidth();
             float height = Widget::GetHeight();
 
-            graphics::RectangleShape clock_background(width, height);
-            clock_background.SetPosition(lt_corner);
-            clock_background.SetFillColor(kColorClock);
+            sf::RectangleShape clock_background(sf::Vector2f(width, height));
+            clock_background.setPosition(lt_corner[0], lt_corner[1]);
+            clock_background.setFillColor(kColorClock);
 
-            window->Draw(clock_background);
+            window->draw(clock_background);
             tm* loc_tm = localtime(&time_);
 
             DrawArrows(window, 360 * loc_tm->tm_hour / 12 - 90);
@@ -40,7 +40,7 @@ class Clock : public Widget {
         };
 
     private:
-        void DrawArrows(graphics::RenderWindow* window, float angle) {
+        void DrawArrows(sf::RenderWindow* window, float angle) {
             Coordinates vec(2, 0, Widget::GetHeight()/2);
             float length = vec.GetModule();
             vec.SetCoordinate(0, length * cos(angle * M_PI / 180));
@@ -49,22 +49,22 @@ class Clock : public Widget {
             Coordinates start_coordinates(2, Widget::GetWidth() / 2, Widget::GetHeight() / 2);
             start_coordinates = start_coordinates + Widget::GetLTCornerAbs();
 
-            graphics::RectangleShape line(length, kVectorWidth);
-            line.SetPosition(start_coordinates);
-            line.SetFillColor(graphics::kColorBlack);
+            sf::RectangleShape line({length, kVectorWidth});
+            line.setPosition({start_coordinates[0], start_coordinates[1]});
+            line.setFillColor(sf::Color::Black);
 
-            line.Rotate(angle);
+            line.rotate(angle);
 
-            window->Draw(line);
+            window->draw(line);
 
-            graphics::RectangleShape arrow(length * kArrowLenPercentage, kVectorWidth);
-            arrow.SetPosition(start_coordinates + vec);
-            arrow.SetFillColor(graphics::kColorBlack);
-            arrow.Rotate(180 + angle - kArrowAngle);
-            window->Draw(arrow);
+            sf::RectangleShape arrow({length * kArrowLenPercentage, kVectorWidth});
+            arrow.setPosition(start_coordinates[0] + vec[0], start_coordinates[1] + vec[1]);
+            arrow.setFillColor(sf::Color::Black);
+            arrow.rotate(180 + angle - kArrowAngle);
+            window->draw(arrow);
 
-            arrow.Rotate(2 * kArrowAngle);
-            window->Draw(arrow);
+            arrow.rotate(2 * kArrowAngle);
+            window->draw(arrow);
         };
 };
 

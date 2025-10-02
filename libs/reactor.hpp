@@ -5,8 +5,6 @@
 #include <stdint.h>
 #include <unistd.h>
 
-#include "graphics.hpp"
-
 class Reactor;
 
 #include "button.hpp"
@@ -71,7 +69,7 @@ class Reactor : public WidgetContainer {
             piston_ = (piston < width) ? piston : width;
         };
 
-        virtual void Draw(graphics::RenderWindow* window) override {
+        virtual void Draw(sf::RenderWindow* window) override {
             ASSERT(window != NULL, "");
 
             WidgetContainer::SetParentToChildren();
@@ -79,27 +77,21 @@ class Reactor : public WidgetContainer {
             LOG(kDebug, "Draw Reactor");
 
             const Coordinates lt_corner(Widget::GetLTCornerAbs());
-            float width = Widget::GetWidth();
-            float height = Widget::GetHeight();
+            const Coordinates rb_corner(Widget::GetRBCornerAbs());
 
-            graphics::RectangleShape reactor_background(width, height);
-            reactor_background.SetPosition(lt_corner);
-            reactor_background.SetFillColor(graphics::kColorCyan);
+            sf::RectangleShape reactor_background(sf::Vector2f(rb_corner[0] - lt_corner[0], rb_corner[1] - lt_corner[1]));
+            reactor_background.setPosition(lt_corner[0], lt_corner[1]);
+            reactor_background.setFillColor(sf::Color::Cyan);
 
-            window->Draw(reactor_background);
+            window->draw(reactor_background);
 
             DrawMolecules(window);
 
-            graphics::RectangleShape piston_pic(kWidthPiston, height);
-            piston_pic.SetPosition(Coordinates(2, piston_ + lt_corner[0], lt_corner[1]));
-            piston_pic.SetFillColor(graphics::kColorRed);
+            sf::RectangleShape piston_pic(sf::Vector2f(kWidthPiston, rb_corner[1] - lt_corner[1]));
+            piston_pic.setPosition(piston_ + lt_corner[0], lt_corner[1]);
+            piston_pic.setFillColor(sf::Color::Red);
 
-            window->Draw(piston_pic);
-        };
-
-        virtual bool OnMousePress(__attribute_maybe_unused__ const Coordinates& mouse_pos,
-                                  __attribute_maybe_unused__ Widget** widget) override {
-            return false;
+            window->draw(piston_pic);
         };
 
         virtual bool OnIdle() override {
@@ -116,7 +108,7 @@ class Reactor : public WidgetContainer {
 
     private:
         ReactorError CheckCollisions();
-        ReactorError DrawMolecules(graphics::RenderWindow* window);
+        ReactorError DrawMolecules(sf::RenderWindow* window);
         ReactorError MoveMolecules();
         ReactorError MoveCircle(Object* const object, float distance);
 };
@@ -152,7 +144,7 @@ class ReactorManager : public WidgetContainer {
         GraphManager* GetGraphManager() {return dynamic_cast<GraphManager*>(WidgetContainer::GetChildren()[kGraphManager]);};
         PanelControl* GetPanelControl() {return dynamic_cast<PanelControl*>(WidgetContainer::GetChildren()[kPanelControl]);};
 
-        virtual void Draw(graphics::RenderWindow* window) override {
+        virtual void Draw(sf::RenderWindow* window) override {
             ASSERT(window != NULL, "");
 
             LOG(kDebug, "Drawing Reactor Manager");
@@ -179,6 +171,125 @@ class ReactorManager : public WidgetContainer {
             }
 
             return true;
+        };
+};
+
+class PistonButton : public Button {
+    private:
+        float shift_;
+
+    public:
+        explicit PistonButton(const Button& button, float shift)
+            :Button(button) {
+            shift_ = shift;
+        };
+
+        float GetShift() const {return shift_;};
+
+        virtual void Action(Reactor* reactor) {
+            ASSERT(reactor != NULL, "");
+
+            bool pressed = Button::GetPressedInfo();
+            Button::SetPressedInfo(!pressed);
+            if (!pressed) {
+                reactor->SetPistonX(reactor->GetPistonX() + shift_);
+            }
+        };
+
+        virtual bool OnMousePress(const Coordinates& mouse_pos) override {
+            Coordinates lt_corner(Widget::GetLTCornerLoc());
+            float width = Widget::GetWidth();
+            float height = Widget::GetHeight();
+
+            LOG(kError, "Coordinates On Button X = %f, Y = %f\n"
+                        "Coordinates On Button X = %f, Y = %f\n"
+                        "Width = %f, Height = %f\n", mouse_pos[0], mouse_pos[1], lt_corner[0], lt_corner[1], width, height);
+
+            if ((mouse_pos[0] > lt_corner[0])
+                && (mouse_pos[1] > lt_corner[1])
+                && (mouse_pos[0] < lt_corner[0] + width)
+                && (mouse_pos[1] < lt_corner[1] + height)) {
+                Action(dynamic_cast<Reactor*>(dynamic_cast<WidgetContainer*>(Widget::GetParent()->GetParent())->GetChild(kReactor)));
+
+                return true;
+            }
+
+            return false;
+        };
+};
+
+class NumberMoleculeButton : public Button {
+    private:
+        int64_t delta_;
+        ObjectType type_;
+
+    public:
+        explicit NumberMoleculeButton(const Button& button, float delta, ObjectType type)
+            :Button(button) {
+            delta_ = delta;
+            type_ = type;
+        };
+
+        int64_t GetDelta() const {return delta_;};
+        ObjectType GetType() const {return type_;};
+
+        virtual void Action(Reactor* reactor) {
+            ASSERT(reactor != NULL, "");
+
+            bool pressed = Button::GetPressedInfo();
+            Button::SetPressedInfo(!pressed);
+            if (pressed) {
+                return;
+            }
+
+            if (delta_ > 0) {
+                std::vector<Widget*>& objects = reactor->GetChildren();
+                float height = reactor->GetHeight();
+                float width  = reactor->GetWidth();
+                switch(type_) {
+                    case kCircleType: {
+                        GenerateCircleObjects(objects, width, height, delta_, this);
+                        return;
+                    }
+                    case kCubeType: {
+                        GenerateCubeObjects(objects, width, height, delta_, this);
+                        return;
+                    }
+                    default:
+                        return;
+                }
+            }
+
+            int64_t deleted_num = - delta_;
+
+            std::vector<Widget*>& objects = reactor->GetChildren();
+            size_t objects_num = objects.size();
+            for(size_t i = 0; (i < objects_num) && (deleted_num > 0); i++) {
+                if (dynamic_cast<Object*>(objects[i])->GetType() == type_) {
+                    delete objects[i];
+                    objects.erase(objects.begin() + i);
+                    objects_num--;
+                    i--;
+                    deleted_num--;
+                }
+            }
+        };
+
+        virtual bool OnMousePress(const Coordinates& mouse_pos) override {
+            Coordinates lt_corner(Widget::GetLTCornerLoc());
+            float width = Widget::GetWidth();
+            float height = Widget::GetHeight();
+
+            if ((mouse_pos[0] > lt_corner[0])
+                && (mouse_pos[1] > lt_corner[1])
+                && (mouse_pos[0] < lt_corner[0] + width)
+                && (mouse_pos[1] < lt_corner[1] + height)) {
+                Action(dynamic_cast<Reactor*>(dynamic_cast<WidgetContainer*>(Widget::GetParent()->GetParent())->GetChild(kReactor)));
+
+                return true;
+            }
+
+            return false;
         };
 };
 

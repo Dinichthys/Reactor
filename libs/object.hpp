@@ -1,8 +1,6 @@
 #ifndef OBJECT_HPP
 #define OBJECT_HPP
 
-#include "graphics.hpp"
-
 #include "vector.hpp"
 #include "window.hpp"
 
@@ -11,8 +9,7 @@ static const float kCircleRadius = 5;
 static const size_t kCircleWeight = 1;
 
 static const sf::Color kColorCircle = sf::Color::Green;
-static const graphics::Color kColorCube = graphics::kColorRed;
-
+static const sf::Color kColorCube = sf::Color::Red;
 enum ObjectType {
     kNone = -1,
 
@@ -64,17 +61,15 @@ class Cube : virtual public Object {
         size_t GetWeight() const {return weight;};
         void   SetWeight(size_t new_weight) {weight = new_weight;};
 
-        virtual void Draw(graphics::RenderWindow* window) {
+        virtual void Draw(sf::RenderWindow* window) {
             ASSERT(window != NULL, "");
-
-            LOG(kError, "Draw cube");
 
             const Coordinates lt_corner(Widget::GetLTCornerAbs());
 
-            graphics::RectangleShape rectangle(kWidthCube, kWidthCube);
-            rectangle.SetPosition(lt_corner);
-            rectangle.SetFillColor(kColorCube);
-            window->Draw(rectangle);
+            sf::RectangleShape rectangle(sf::Vector2f(kWidthCube, kWidthCube));
+            rectangle.setPosition(sf::Vector2f(lt_corner[0], lt_corner[1]));
+            rectangle.setFillColor(kColorCube);
+            window->draw(rectangle);
         };
 };
 
@@ -85,7 +80,7 @@ class Circle : virtual public Object {
 
         virtual ~Circle() {};
 
-        virtual void Draw(graphics::RenderWindow* window) override {
+        virtual void Draw(sf::RenderWindow* window) override {
             ASSERT(window != NULL, "");
 
             Coordinates center = Object::GetCenterCoordinatesAbs();
@@ -101,7 +96,7 @@ class Circle : virtual public Object {
                 }
             }
 
-            window->Draw(vertices);
+            window->draw(vertices);
         }
 
 };

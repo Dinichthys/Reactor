@@ -6,8 +6,6 @@
 #include <SFML/Window.hpp>
 #include <SFML/System.hpp>
 
-#include "graphics.hpp"
-
 #include "vector.hpp"
 #include "logging.h"
 
@@ -18,12 +16,15 @@ class Widget {
         float height_;
         Widget* parent_;
 
+        bool controlled;
+
     public:
         explicit Widget(const Coordinates& lt_corner, const float width, float height, Widget* parent = NULL)
             :lt_corner_(lt_corner) {
             width_ = width;
             height_ = height;
             parent_ = parent;
+            controlled = false;
         };
 
         virtual ~Widget() {};
@@ -39,47 +40,20 @@ class Widget {
         virtual float GetWidth() const {return width_;};
         virtual float GetHeight() const {return height_;};
 
+        virtual bool GetControllingInfo() const {return controlled;};
+
         virtual Widget* GetParent() const {return parent_;};
 
         virtual void SetLTCorner(const Coordinates& coors) {lt_corner_ = coors;};
         void SetParent(Widget* parent) {parent_ = parent;};
 
-        virtual void Draw(graphics::RenderWindow* window) = 0;
+        virtual void Draw(sf::RenderWindow* window) = 0;
         virtual void Move(float shift_x, float shift_y) {
             lt_corner_.SetCoordinate(0, lt_corner_[0] + shift_x);
             lt_corner_.SetCoordinate(1, lt_corner_[1] + shift_y);
         };
 
-        virtual bool OnMouseMove(float shift_x, float shift_y) {
-            Move(shift_x, shift_y);
-
-            fprintf(stderr, "Shift X = %f, Y = %f\n", shift_x, shift_y);
-
-            return true;
-        };
-
-        virtual bool OnMousePress(const Coordinates& mouse_pos, Widget** widget) {
-            ASSERT(widget != NULL, "");
-
-            if ((mouse_pos[0] > lt_corner_[0])
-                && (mouse_pos[1] > lt_corner_[1])
-                && (mouse_pos[0] < lt_corner_[0] + width_)
-                && (mouse_pos[1] < lt_corner_[1] + height_)) {
-                *widget = this;
-                return true;
-            }
-
-            return false;
-        };
-
-        virtual bool OnMouseRelease(const Coordinates& mouse_pos) {
-            if ((mouse_pos[0] > lt_corner_[0])
-                && (mouse_pos[1] > lt_corner_[1])
-                && (mouse_pos[0] < lt_corner_[0] + width_)
-                && (mouse_pos[1] < lt_corner_[1] + height_)) {
-                return true;
-            }
-
+        virtual bool OnMousePress(const Coordinates& mouse_pos) {
             return false;
         };
 
@@ -132,7 +106,7 @@ class WidgetContainer : public Widget {
             }
         }
 
-        virtual void Draw(graphics::RenderWindow* window) override {
+        virtual void Draw(sf::RenderWindow* window) override {
             ASSERT(window != NULL, "");
 
             size_t children_num = children_.size();
@@ -141,54 +115,26 @@ class WidgetContainer : public Widget {
             }
         };
 
-        virtual bool OnMousePress(const Coordinates& mouse_pos, Widget** widget) override {
-            ASSERT(widget != NULL, "");
-
+        virtual bool OnMousePress(const Coordinates& mouse_pos) {
             Coordinates lt_corner(Widget::GetLTCornerLoc());
             float width = Widget::GetWidth();
             float height = Widget::GetHeight();
 
-            int64_t children_num = children_.size();
-            for (int64_t i = children_num - 1; i > -1; i--) {
-                if (children_[i]->OnMousePress(mouse_pos - lt_corner, widget)) {
+            size_t children_num = children_.size();
+            for (size_t i = 0; i < children_num; i++) {
+                if (children_[i]->OnMousePress(mouse_pos - lt_corner)) {
                     return true;
                 }
-            }
-
-            if ((mouse_pos[0] > lt_corner[0])
-                && (mouse_pos[1] > lt_corner[1])
-                && (mouse_pos[0] < lt_corner[0] + width)
-                && (mouse_pos[1] < lt_corner[1] + height)) {
-                *widget = this;
-                return true;
-            }
-
-            return false;
-        };
-
-        virtual bool OnMouseRelease(const Coordinates& mouse_pos) override {
-            Coordinates lt_corner(Widget::GetLTCornerLoc());
-            float width = Widget::GetWidth();
-            float height = Widget::GetHeight();
-
-            int64_t children_num = children_.size();
-            for (int64_t i = children_num - 1; i > -1; i--) {
-                if (children_[i]->OnMouseRelease(mouse_pos - lt_corner)) {
-                    return true;
-                }
-            }
-
-            if ((mouse_pos[0] > lt_corner[0])
-                && (mouse_pos[1] > lt_corner[1])
-                && (mouse_pos[0] < lt_corner[0] + width)
-                && (mouse_pos[1] < lt_corner[1] + height)) {
-                return true;
             }
 
             return false;
         };
 
         virtual bool OnIdle() {
+            Coordinates lt_corner(Widget::GetLTCornerLoc());
+            float width = Widget::GetWidth();
+            float height = Widget::GetHeight();
+
             size_t children_num = children_.size();
             for (size_t i = 0; i < children_num; i++) {
                 children_[i]->OnIdle();

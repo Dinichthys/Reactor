@@ -5,8 +5,6 @@
 #include <vector>
 #include <float.h>
 
-#include "graphics.hpp"
-
 #include "vector.hpp"
 #include "window.hpp"
 
@@ -42,9 +40,9 @@ class GraphManager : public Widget  {
         void SetMaxVal(float new_max) {max_ = new_max;};
         void SetMinVal(float new_min) {min_ = new_min;};
 
-        virtual void Draw(graphics::RenderWindow* window) override;
-        GraphError DrawAxis(graphics::RenderWindow* window);
-        GraphError DrawGraph(graphics::RenderWindow* window);
+        virtual void Draw(sf::RenderWindow* window) override;
+        GraphError DrawAxis(sf::RenderWindow* window);
+        GraphError DrawGraph(sf::RenderWindow* window);
 };
 
 #endif // GRAPH_HPP
