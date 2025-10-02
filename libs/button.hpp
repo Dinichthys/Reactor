@@ -3,15 +3,17 @@
 
 #include <SFML/Graphics.hpp>
 
+#include "graphics.hpp"
+
 #include "reactor.hpp"
 #include "window.hpp"
 #include "my_assert.h"
 #include "text.hpp"
 
-static const sf::Color kDefaultButtonColor = sf::Color::Blue;
-static const sf::Color kPressedColor = sf::Color::Green;
-static const sf::Color kReleaseColor = sf::Color::Red;
-static const sf::Color kPanelColor = sf::Color::White;
+static const graphics::Color kDefaultButtonColor = graphics::kColorBlue;
+static const graphics::Color kPressedColor = graphics::kColorGreen;
+static const graphics::Color kReleaseColor = graphics::kColorRed;
+static const graphics::Color kPanelColor = graphics::kColorWhite;
 
 class Button : public WidgetContainer {
     private:
@@ -52,30 +54,33 @@ class Button : public WidgetContainer {
         bool GetPressedInfo() const {return pressed;};
         void SetPressedInfo(bool new_pressed) {pressed = new_pressed;};
 
-        virtual void Draw(sf::RenderWindow* window) {
+        virtual void Draw(graphics::RenderWindow* window) {
             ASSERT(window != NULL, "");
 
             Coordinates lt_corner(Widget::GetLTCornerAbs());
             float width = Widget::GetWidth();
             float height = Widget::GetHeight();
 
-            sf::RectangleShape button_background(sf::Vector2f(width, height));
-            button_background.setPosition(lt_corner[0], lt_corner[1]);
+            graphics::RectangleShape button_background(width, height);
+            button_background.SetPosition(lt_corner);
             if (Button::GetPressedInfo()) {
-                button_background.setFillColor(kPressedColor);
+                button_background.SetFillColor(kPressedColor);
             } else {
-                button_background.setFillColor(kReleaseColor);
+                button_background.SetFillColor(kReleaseColor);
             }
 
-            window->draw(button_background);
+            window->Draw(button_background);
 
             WidgetContainer::Draw(window);
         };
 
-        virtual bool OnMousePress(const Coordinates& mouse_pos) override {
+        virtual bool OnMousePress(const Coordinates& mouse_pos, Widget** widget) override {
             Coordinates lt_corner(Widget::GetLTCornerLoc());
             float width = Widget::GetWidth();
             float height = Widget::GetHeight();
+
+            *widget = NULL;
+
             if ((mouse_pos[0] > lt_corner[0])
                 && (mouse_pos[1] > lt_corner[1])
                 && (mouse_pos[0] < width)
@@ -102,18 +107,18 @@ class PanelControl : public WidgetContainer {
             WidgetContainer::SetParentToChildren();
         };
 
-        virtual void Draw(sf::RenderWindow* window) override {
+        virtual void Draw(graphics::RenderWindow* window) override {
             ASSERT(window != NULL, "");
 
             Coordinates lt_corner(Widget::GetLTCornerAbs());
             float width = Widget::GetWidth();
             float height = Widget::GetHeight();
 
-            sf::RectangleShape button_background(sf::Vector2f(width, height));
-            button_background.setPosition(lt_corner[0], lt_corner[1]);
-            button_background.setFillColor(kPanelColor);
+            graphics::RectangleShape button_background(width, height);
+            button_background.SetPosition(lt_corner);
+            button_background.SetFillColor(kPanelColor);
 
-            window->draw(button_background);
+            window->Draw(button_background);
 
             WidgetContainer::Draw(window);
         };

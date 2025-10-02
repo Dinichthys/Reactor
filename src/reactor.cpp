@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+#include "graphics.hpp"
+
 #include <SFML/Graphics/Vertex.hpp>
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
@@ -94,7 +96,8 @@ static ReactorError CircleCircleCollision(std::vector<Widget*>& objects, size_t 
     return kDoneReactor;
 }
 
-static ReactorError CircleCubeCollision(std::vector<Widget*>& objects, size_t circle_index, size_t cube_index, bool* reaction, Reactor* reactor) {
+static ReactorError CircleCubeCollision(std::vector<Widget*>& objects, size_t circle_index, size_t cube_index, bool* reaction,
+                                        __attribute_maybe_unused__ Reactor* reactor) {
     ASSERT(reaction != NULL, "");
 
     if (dynamic_cast<Object*>(objects[circle_index])->GetType() != kCircleType) {
@@ -199,7 +202,7 @@ static ReactorError CubeCubeCollision(std::vector<Widget*>& objects, size_t i, s
     return kDoneReactor;
 }
 
-ReactorError Reactor::DrawMolecules(sf::RenderWindow* window) {
+ReactorError Reactor::DrawMolecules(graphics::RenderWindow* window) {
     ASSERT(window != NULL, "");
 
     std::vector<Widget*>& objects = WidgetContainer::GetChildren();
