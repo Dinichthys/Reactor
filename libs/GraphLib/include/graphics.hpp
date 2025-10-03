@@ -11,7 +11,7 @@ namespace graphics {
         uint8_t brightness_;
 
         public:
-            explicit Color(float red, float green, float blue, uint8_t brightness = 255)
+            explicit Color(float red = 0, float green = 0, float blue = 0, uint8_t brightness = 255)
                 :Coordinates(3, red, green, blue) {
                 brightness_ = brightness;
             };

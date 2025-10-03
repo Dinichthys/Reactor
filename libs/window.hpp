@@ -13,9 +13,12 @@ class Widget {
         float height_;
         Widget* parent_;
 
+        bool hovered_;
+
     public:
         explicit Widget(const Coordinates& lt_corner, const float width, float height, Widget* parent = NULL)
             :lt_corner_(lt_corner) {
+            hovered_ = false;
             width_ = width;
             height_ = height;
             parent_ = parent;
@@ -38,6 +41,9 @@ class Widget {
 
         virtual void SetLTCorner(const Coordinates& coors) {lt_corner_ = coors;};
         void SetParent(Widget* parent) {parent_ = parent;};
+
+        bool GetHovered() const {return hovered_;};
+        void SetHovered(bool hovered) {hovered_ = hovered;};
 
         virtual void Draw(graphics::RenderWindow* window) = 0;
         virtual void Move(float shift_x, float shift_y) {
@@ -73,6 +79,19 @@ class Widget {
                 return true;
             }
 
+            return false;
+        };
+
+        virtual bool OnMouseEnter(const Coordinates& mouse_pos) {
+            if ((mouse_pos[0] > lt_corner_[0])
+                && (mouse_pos[1] > lt_corner_[1])
+                && (mouse_pos[0] < lt_corner_[0] + width_)
+                && (mouse_pos[1] < lt_corner_[1] + height_)) {
+                hovered_ = true;
+                return true;
+            }
+
+            hovered_ = false;
             return false;
         };
 
@@ -178,6 +197,30 @@ class WidgetContainer : public Widget {
                 return true;
             }
 
+            return false;
+        };
+
+        virtual bool OnMouseEnter(const Coordinates& mouse_pos) override {
+            Coordinates lt_corner(Widget::GetLTCornerLoc());
+            float width = Widget::GetWidth();
+            float height = Widget::GetHeight();
+
+            int64_t children_num = children_.size();
+            for (int64_t i = children_num - 1; i > -1; i--) {
+                if (children_[i]->OnMouseEnter(mouse_pos - lt_corner)) {
+                    break;
+                }
+            }
+
+            if ((mouse_pos[0] > lt_corner[0])
+                && (mouse_pos[1] > lt_corner[1])
+                && (mouse_pos[0] < lt_corner[0] + width)
+                && (mouse_pos[1] < lt_corner[1] + height)) {
+                Widget::SetHovered(true);
+                return true;
+            }
+
+            Widget::SetHovered(false);
             return false;
         };
 

@@ -15,6 +15,8 @@ static const graphics::Color kPressedColor = graphics::kColorGreen;
 static const graphics::Color kReleaseColor = graphics::kColorRed;
 static const graphics::Color kPanelColor = graphics::kColorWhite;
 
+static uint8_t kHoveredColorScale = 2;
+
 class Button : public WidgetContainer {
     private:
         bool pressed;
@@ -61,12 +63,16 @@ class Button : public WidgetContainer {
             Coordinates lt_corner(Widget::GetLTCornerAbs());
 
             button_background_.SetPosition(lt_corner);
-            if (Button::GetPressedInfo()) {
-                button_background_.SetFillColor(kPressedColor);
-            } else {
-                button_background_.SetFillColor(kReleaseColor);
+            graphics::Color color = (Button::GetPressedInfo()) ? kPressedColor : kReleaseColor;
+
+            if (Widget::GetHovered()) {
+                color  = graphics::Color(color.GetRedPart() / kHoveredColorScale,
+                                         color.GetBluePart() / kHoveredColorScale,
+                                         color.GetGreenPart() / kHoveredColorScale,
+                                         color.GetBrightness());
             }
 
+            button_background_.SetFillColor(color);
             window->Draw(button_background_);
 
             WidgetContainer::Draw(window);

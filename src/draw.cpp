@@ -78,13 +78,15 @@ RendererError UI::AnalyzeKey(const graphics::Event& event) {
             break;
         }
         case(graphics::kMouseMoved) : {
-            if (moving_window == NULL) {
-                break;
-            }
-
             float old_x = mouse_pos[0];
             float old_y = mouse_pos[1];
             GetMousePosition(mouse_pos);
+
+            OnMouseEnter(mouse_pos);
+
+            if (moving_window == NULL) {
+                break;
+            }
 
             moving_window->OnMouseMove(mouse_pos[0] - old_x, mouse_pos[1] - old_y);
 
