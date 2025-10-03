@@ -97,8 +97,21 @@ class Reactor : public WidgetContainer {
             window->Draw(piston_background_);
         };
 
-        virtual bool OnMousePress(__attribute_maybe_unused__ const Coordinates& mouse_pos,
-                                  __attribute_maybe_unused__ Widget** widget) override {
+        virtual bool OnMousePress(const Coordinates& mouse_pos, Widget** widget) override {
+            ASSERT(widget != NULL, "");
+
+            Coordinates lt_corner(Widget::GetLTCornerLoc());
+            float width = Widget::GetWidth();
+            float height = Widget::GetHeight();
+
+            if ((mouse_pos[0] > lt_corner[0])
+                && (mouse_pos[1] > lt_corner[1])
+                && (mouse_pos[0] < lt_corner[0] + width)
+                && (mouse_pos[1] < lt_corner[1] + height)) {
+                *widget = this;
+                return true;
+            }
+
             return false;
         };
 
@@ -158,6 +171,16 @@ class ReactorManager : public WidgetContainer {
             LOG(kDebug, "Drawing Reactor Manager");
 
             WidgetContainer::Draw(window);
+        };
+
+        virtual bool OnMousePress(const Coordinates& mouse_pos, Widget** widget) override {
+            ASSERT(widget != NULL, "");
+
+            bool result = WidgetContainer::OnMousePress(mouse_pos, widget);
+
+            *widget = (*widget == this) ? NULL : *widget;
+
+            return result;
         };
 
         virtual bool OnIdle() override {
