@@ -53,9 +53,13 @@ class Cube : virtual public Object {
     private:
         size_t weight;
 
+        graphics::RectangleShape rectangle_;
+
     public:
         explicit Cube(const Coordinates& center, size_t weight_val, const Coordinates& speed_val, Widget* parent = NULL)
-            :Object(center - Coordinates(2, kWidthCube, kWidthCube) / 2, kWidthCube, kWidthCube, speed_val, kCubeType, parent) {
+            :Object(center - Coordinates(2, kWidthCube, kWidthCube) / 2, kWidthCube, kWidthCube, speed_val, kCubeType, parent),
+             rectangle_(kWidthCube, kWidthCube) {
+            rectangle_.SetFillColor(kColorCube);
             weight = weight_val;
         };
 
@@ -69,17 +73,20 @@ class Cube : virtual public Object {
 
             const Coordinates lt_corner(Widget::GetLTCornerAbs());
 
-            graphics::RectangleShape rectangle(kWidthCube, kWidthCube);
-            rectangle.SetPosition(lt_corner);
-            rectangle.SetFillColor(kColorCube);
-            window->Draw(rectangle);
+            rectangle_.SetPosition(lt_corner);
+            window->Draw(rectangle_);
         };
 };
 
 class Circle : virtual public Object {
+    private:
+        graphics::VertexArray vertices_;
+
     public:
         explicit Circle(const Coordinates& center, const Coordinates& speed_val, Widget* parent = NULL)
-            :Object(center - Coordinates(2, kCircleRadius, kCircleRadius), kCircleRadius, kCircleRadius, speed_val, kCircleType, parent) {};
+            :Object(center - Coordinates(2, kCircleRadius, kCircleRadius),
+                    kCircleRadius, kCircleRadius, speed_val, kCircleType, parent),
+             vertices_((size_t) (4 * kCircleRadius * kCircleRadius)) {};
 
         virtual ~Circle() {};
 
@@ -87,19 +94,18 @@ class Circle : virtual public Object {
             ASSERT(window != NULL, "");
 
             Coordinates center = Object::GetCenterCoordinatesAbs();
-            graphics::VertexArray vertices ((size_t) (4 * kCircleRadius * kCircleRadius));
             size_t vertex_index = 0;
             for (float i = -kCircleRadius; i < kCircleRadius; i++) {
                 for (float j = -kCircleRadius; j < kCircleRadius; j++) {
                     if (i * i + j * j < kCircleRadius * kCircleRadius) {
-                        vertices.SetPixelPosition(vertex_index, Coordinates(2, center[0] + j, center[1] + i));
-                        vertices.SetPixelColor(vertex_index, kColorCircle);
+                        vertices_.SetPixelPosition(vertex_index, Coordinates(2, center[0] + j, center[1] + i));
+                        vertices_.SetPixelColor(vertex_index, kColorCircle);
                         vertex_index++;
                     }
                 }
             }
 
-            window->Draw(vertices);
+            window->Draw(vertices_);
         }
 
 };

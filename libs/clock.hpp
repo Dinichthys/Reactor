@@ -11,22 +11,22 @@ static const graphics::Color kColorArrow = graphics::kColorYellow;
 class Clock : public Widget {
     private:
         time_t time_;
+        graphics::RectangleShape clock_background_;
 
     public:
         explicit Clock(const Coordinates& lt_corner, const float width, float height,
                        Widget* parent = NULL)
-            :Widget(lt_corner, width, height, parent) {};
+            :Widget(lt_corner, width, height, parent), clock_background_(width, height) {
+            time_ = time(NULL);
+            clock_background_.SetFillColor(kColorClock);
+        };
 
         virtual void Draw(graphics::RenderWindow* window) override {
             const Coordinates lt_corner(Widget::GetLTCornerAbs());
-            float width = Widget::GetWidth();
-            float height = Widget::GetHeight();
 
-            graphics::RectangleShape clock_background(width, height);
-            clock_background.SetPosition(lt_corner);
-            clock_background.SetFillColor(kColorClock);
+            clock_background_.SetPosition(lt_corner);
+            window->Draw(clock_background_);
 
-            window->Draw(clock_background);
             tm* loc_tm = localtime(&time_);
 
             DrawArrows(window, 360 * loc_tm->tm_hour / 12 - 90);

@@ -31,9 +31,13 @@ class GraphManager : public Widget  {
         float max_ = FLT_MIN;
         float min_ = FLT_MAX;
 
+        graphics::RectangleShape rectangle_;
+
     public:
         explicit GraphManager(const Coordinates& lt_corner, float width, float height, Widget* parent = NULL)
-            :Widget(lt_corner, width, height, parent) {};
+            :Widget(lt_corner, width, height, parent), rectangle_(width, height) {
+            rectangle_.SetOutlineColor(graphics::kColorBlack);
+        };
 
         std::vector<float>& GetValues() {return points;};
         float GetMaxVal() {return max_;};

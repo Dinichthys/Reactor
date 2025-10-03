@@ -42,11 +42,15 @@ namespace graphics {
         public:
             explicit Text(const char* text, const char* font_file_name, unsigned char height);
 
+            explicit Text(const Text& other);
+
             ~Text();
 
             void SetPosition(const Coordinates& lt_corner) const;
 
             void* GetText() const {return text_;};
+
+            void* GetFont() const {return font_;};
     };
 
     class VertexArray {
@@ -55,6 +59,8 @@ namespace graphics {
 
         public:
             explicit VertexArray(size_t size);
+
+            explicit VertexArray(const VertexArray& other);
 
             ~VertexArray();
 
@@ -70,6 +76,8 @@ namespace graphics {
 
         public:
             explicit RectangleShape(float width, float height);
+
+            explicit RectangleShape(const RectangleShape& other);
 
             ~RectangleShape();
 
@@ -125,6 +133,8 @@ namespace graphics {
 
             float GetWidth() const;
             float GetHeight() const;
+
+            void* GetWindow() const {return window_;};
 
             bool PollEvent(graphics::Event& event) const;
 

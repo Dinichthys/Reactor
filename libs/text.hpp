@@ -7,27 +7,20 @@
 
 class Text : public Widget {
     private:
-        const char* const text_;
-        const char* const font_file_name_;
+        graphics::Text text_;
 
     public:
         explicit Text(const Coordinates& lt_corner, float width, float height, Widget* parent,
-                        const char* text_val, const char* file_name)
-            :Widget(lt_corner, width, height, parent), text_(text_val), font_file_name_(file_name) {
-            ASSERT(text_val != NULL, "");
-            ASSERT(file_name != NULL, "");
-        };
+                        const char* text, const char* font_file_name)
+            :Widget(lt_corner, width, height, parent), text_(text, font_file_name, height) {};
 
         virtual void Draw(graphics::RenderWindow* window) override {
             ASSERT(window != NULL, "");
 
             Coordinates lt_corner(Widget::GetLTCornerAbs());
-            float height = Widget::GetHeight();
 
-            graphics::Text text(text_, font_file_name_, height);
-            text.SetPosition(lt_corner);
-
-            window->Draw(text);
+            text_.SetPosition(lt_corner);
+            window->Draw(text_);
         };
 };
 

@@ -3,6 +3,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <chrono>
 
 #include "graphics.hpp"
 
@@ -16,6 +17,10 @@ RendererError UI::ShowWindow() {
     background.SetPosition(Coordinates(2, 0.f, 0.f));
     background.SetFillColor(graphics::kColorBlack);
 
+    auto end_time = std::chrono::high_resolution_clock::now();
+    auto start_time = end_time;
+    size_t duration = 0;
+
     graphics::Event event;
     while (window.IsOpen()) {
         if (window.PollEvent(event)) {
@@ -26,17 +31,22 @@ RendererError UI::ShowWindow() {
             AnalyzeKey(event);
         }
 
-        WidgetContainer::OnIdle();
-
         LOG(kDebug, "Drawing window");
 
-        window.Draw(background);
+        WidgetContainer::OnIdle();
 
-        WidgetContainer::Draw(&window);
+        start_time = end_time;
+        end_time = std::chrono::high_resolution_clock::now();
+        duration += std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time).count();
+        if (kOneSceneUpdateTimeInMicro <= duration) {
+            duration = 0;
 
-        usleep(kTimeSleep);
+            window.Draw(background);
 
-        window.Display();
+            WidgetContainer::Draw(&window);
+
+            window.Display();
+        }
     }
 
     return kDoneRenderer;

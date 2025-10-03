@@ -30,6 +30,20 @@ namespace graphics {
         }
     }
 
+    Text::Text(const Text& other) {
+        font_ = new(std::nothrow) sf::Font(*((sf::Font*)other.GetFont()));
+        if (font_ == NULL) {
+            throw std::runtime_error("Can't create font for Text object\n");
+        }
+
+        text_ = new(std::nothrow) sf::Text(*((sf::Text*)other.GetText()));
+        if (text_ == NULL) {
+            throw std::runtime_error("Can't create Text object\n");
+        }
+
+        ((sf::Text*)text_)->setFont(*((sf::Font*)font_));
+    }
+
     Text::~Text() {
         delete ((sf::Text*)text_);
         delete ((sf::Font*)font_);
@@ -43,6 +57,13 @@ namespace graphics {
 
     VertexArray::VertexArray(size_t size) {
         vertex_array_ = new(std::nothrow) sf::VertexArray(sf::PrimitiveType::Points, size);
+        if (vertex_array_ == NULL) {
+            throw std::runtime_error("Can't create VertexArray\n");
+        }
+    }
+
+    VertexArray::VertexArray(const VertexArray& other) {
+        vertex_array_ = new(std::nothrow) sf::VertexArray(*((sf::VertexArray*)other.GetVertexArray()));
         if (vertex_array_ == NULL) {
             throw std::runtime_error("Can't create VertexArray\n");
         }
@@ -64,6 +85,13 @@ namespace graphics {
 
     RectangleShape::RectangleShape(float width, float height) {
         rectangle_ = new(std::nothrow) sf::RectangleShape(sf::Vector2f(width, height));
+        if (rectangle_ == NULL) {
+            throw std::runtime_error("Can't create RectangleShape\n");
+        }
+    }
+
+    RectangleShape::RectangleShape(const RectangleShape& other) {
+        rectangle_ = new(std::nothrow) sf::RectangleShape(*((sf::RectangleShape*)other.GetRectangle()));
         if (rectangle_ == NULL) {
             throw std::runtime_error("Can't create RectangleShape\n");
         }

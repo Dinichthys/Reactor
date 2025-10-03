@@ -18,10 +18,11 @@ static const graphics::Color kPanelColor = graphics::kColorWhite;
 class Button : public WidgetContainer {
     private:
         bool pressed;
+        graphics::RectangleShape button_background_;
 
     public:
         explicit Button(const Button& other)
-            :WidgetContainer(other) {
+            :WidgetContainer(other), button_background_(other.GetWidth(), other.GetHeight()) {
             pressed = other.GetPressedInfo();
 
             Text* text = dynamic_cast<Text*>(other.GetChild(0));
@@ -37,7 +38,7 @@ class Button : public WidgetContainer {
 
         explicit Button(const Coordinates& lt_corner, float width, float height,
                         const char* text = NULL, const char* file_name = NULL, Widget* parent = NULL)
-            :WidgetContainer(lt_corner, width, height) {
+            :WidgetContainer(lt_corner, width, height), button_background_(width, height) {
             pressed = false;
 
             if ((text != NULL) && (file_name != NULL)) {
@@ -58,18 +59,15 @@ class Button : public WidgetContainer {
             ASSERT(window != NULL, "");
 
             Coordinates lt_corner(Widget::GetLTCornerAbs());
-            float width = Widget::GetWidth();
-            float height = Widget::GetHeight();
 
-            graphics::RectangleShape button_background(width, height);
-            button_background.SetPosition(lt_corner);
+            button_background_.SetPosition(lt_corner);
             if (Button::GetPressedInfo()) {
-                button_background.SetFillColor(kPressedColor);
+                button_background_.SetFillColor(kPressedColor);
             } else {
-                button_background.SetFillColor(kReleaseColor);
+                button_background_.SetFillColor(kReleaseColor);
             }
 
-            window->Draw(button_background);
+            window->Draw(button_background_);
 
             WidgetContainer::Draw(window);
         };

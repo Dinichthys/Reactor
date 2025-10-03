@@ -14,7 +14,7 @@
 static const unsigned int kStartHeight = 720;
 static const unsigned int kStartWidth = 1080;
 static const char* const kWindowName = "Reactor";
-static const size_t kTimeSleep = 10000;
+static const size_t kOneSceneUpdateTimeInMicro = 10000;
 static const size_t kCharacterSize = 100;
 
 enum RendererError {

@@ -15,15 +15,11 @@ void GraphManager::Draw(graphics::RenderWindow* window) {
     ASSERT(window != NULL, "");
 
     Coordinates lt_corner(Widget::GetLTCornerAbs());
-    float width = Widget::GetWidth();
-    float height = Widget::GetHeight();
 
     LOG(kDebug, "Starting drawing coordinates system");
 
-    graphics::RectangleShape rectangle(width, height);
-    rectangle.SetPosition(lt_corner);
-    rectangle.SetOutlineColor(graphics::kColorBlack);
-    window->Draw(rectangle);
+    rectangle_.SetPosition(lt_corner);
+    window->Draw(rectangle_);
 
     DrawAxis(window);
 

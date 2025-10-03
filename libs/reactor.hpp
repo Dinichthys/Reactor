@@ -46,10 +46,17 @@ class Reactor : public WidgetContainer {
     private:
         float piston_;
 
+        graphics::RectangleShape reactor_background_;
+        graphics::RectangleShape piston_background_;
+
     public:
         explicit Reactor(const Coordinates& lt_corner, float width, float height,
                          const std::vector<Widget*>& objects, Widget* parent = NULL)
-            :WidgetContainer(lt_corner, width, height) {
+            :WidgetContainer(lt_corner, width, height), reactor_background_(width, height),
+             piston_background_(kWidthPiston, height) {
+            reactor_background_.SetFillColor(graphics::kColorCyan);
+            piston_background_.SetFillColor(graphics::kColorRed);
+
             piston_ = width;
 
             std::vector<Widget*>& objects_ = WidgetContainer::GetChildren();
@@ -80,22 +87,14 @@ class Reactor : public WidgetContainer {
             LOG(kDebug, "Draw Reactor");
 
             const Coordinates lt_corner(Widget::GetLTCornerAbs());
-            float width = Widget::GetWidth();
-            float height = Widget::GetHeight();
 
-            graphics::RectangleShape reactor_background(width, height);
-            reactor_background.SetPosition(lt_corner);
-            reactor_background.SetFillColor(graphics::kColorCyan);
-
-            window->Draw(reactor_background);
+            reactor_background_.SetPosition(lt_corner);
+            window->Draw(reactor_background_);
 
             DrawMolecules(window);
 
-            graphics::RectangleShape piston_pic(kWidthPiston, height);
-            piston_pic.SetPosition(Coordinates(2, piston_ + lt_corner[0], lt_corner[1]));
-            piston_pic.SetFillColor(graphics::kColorRed);
-
-            window->Draw(piston_pic);
+            piston_background_.SetPosition(Coordinates(2, piston_ + lt_corner[0], lt_corner[1]));
+            window->Draw(piston_background_);
         };
 
         virtual bool OnMousePress(__attribute_maybe_unused__ const Coordinates& mouse_pos,
