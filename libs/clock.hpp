@@ -43,16 +43,20 @@ class Clock : public Widget {
         void DrawArrows(graphics::RenderWindow* window, float angle) {
             Coordinates vec(2, 0, Widget::GetHeight()/2);
             float length = vec.GetModule();
-            vec.SetCoordinate(0, length * cos(angle * M_PI / 180));
-            vec.SetCoordinate(1, length * sin(angle * M_PI / 180));
+            vec.SetCoordinate(0, length * cos((angle) * M_PI / 180));
+            vec.SetCoordinate(1, length * sin((angle) * M_PI / 180));
 
             Coordinates start_coordinates(2, Widget::GetWidth() / 2, Widget::GetHeight() / 2);
             start_coordinates = start_coordinates + Widget::GetLTCornerAbs();
 
             graphics::RectangleShape line(length, kVectorWidth);
-            line.SetPosition(start_coordinates);
             line.SetFillColor(graphics::kColorBlack);
 
+            Coordinates shift(2, 0, kVectorWidth);
+            shift.SetCoordinate(0, kVectorWidth * cos((90 - angle) * M_PI / 180));
+            shift.SetCoordinate(1, - kVectorWidth * sin((90 - angle) * M_PI / 180));
+
+            line.SetPosition(start_coordinates + shift);
             line.Rotate(angle);
 
             window->Draw(line);

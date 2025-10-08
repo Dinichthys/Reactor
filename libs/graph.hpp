@@ -29,6 +29,7 @@ class GraphManager : public Widget  {
         std::vector<float> points;
 
         float max_ = FLT_MIN;
+        float top_ = max_;
         float min_ = FLT_MAX;
 
         graphics::RectangleShape rectangle_;
@@ -43,8 +44,16 @@ class GraphManager : public Widget  {
         float GetMaxVal() {return max_;};
         float GetMinVal() {return min_;};
 
-        void SetMaxVal(float new_max) {max_ = new_max;};
+        void SetMaxVal(float new_max) {top_ = max_ = new_max;};
         void SetMinVal(float new_min) {min_ = new_min;};
+
+        void AddMaxPercentageVal(float percentage) {
+            float new_top = top_ + percentage * max_ / 100;
+            if (new_top - max_ < kEpsilon) {
+                new_top = max_;
+            }
+            top_ = new_top;
+        }
 
         virtual void Draw(graphics::RenderWindow* window) override;
         GraphError DrawAxis(graphics::RenderWindow* window);

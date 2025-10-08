@@ -17,6 +17,7 @@ class Reactor;
 #include "generate_obj.hpp"
 #include "graph.hpp"
 #include "logging.h"
+#include "scrollbar.hpp"
 
 static const float kWidthReactor = 500;
 static const float kHeightReactor = 400;
@@ -148,7 +149,8 @@ class ReactorManager : public WidgetContainer {
             if (children.back() == NULL) {
                 throw std::runtime_error("Bad allocation for reactor manager");
             }
-            children.push_back(new(std::nothrow) GraphManager(graph_manager));
+            GraphManager* graph_ = new(std::nothrow) GraphManager(graph_manager);
+            children.push_back(graph_);
             if (children.back() == NULL) {
                 throw std::runtime_error("Bad allocation for reactor manager");
             }
@@ -156,7 +158,9 @@ class ReactorManager : public WidgetContainer {
             if (children.back() == NULL) {
                 throw std::runtime_error("Bad allocation for reactor manager");
             }
-
+            children.push_back(new(std::nothrow) ScrollBar(graph_manager.GetLTCornerLoc(),
+                    kArrowScrollBarHeight, graph_manager.GetHeight(),
+                    [graph_](float percentage){graph_->AddMaxPercentageVal(percentage);}));
             Widget::SetParent(parent);
             WidgetContainer::SetParentToChildren();
         };

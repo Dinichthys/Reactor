@@ -3,6 +3,8 @@
 
 #include "graphics.hpp"
 
+#include <vector>
+
 #include "vector.hpp"
 #include "logging.h"
 

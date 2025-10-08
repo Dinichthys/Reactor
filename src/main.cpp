@@ -8,6 +8,7 @@
 #include "draw.hpp"
 #include "clock.hpp"
 #include "reactor_button.hpp"
+#include "scrollbar.hpp"
 
 #include "logging.h"
 
@@ -61,22 +62,22 @@ int main() {
 
     GraphManager graph(Coordinates(2, 600, 300), kWidthGraph / 2, kHeightGraph / 2);
 
-    float button_width = 205;
+    float button_width = 240;
     float button_height = 50;
 
-    PistonButton plus_button(Button(Coordinates(2, 40, 50), button_width, button_height, "Piston->", kFontFileName), 50);
+    PistonButton plus_button(Button(Coordinates(2, 7, 50), button_width, button_height, "Piston->", kFontFileName), 50);
 
-    PistonButton minus_button(Button(Coordinates(2, 265, 50), button_width, button_height, "Piston<-", kFontFileName), -50);
+    PistonButton minus_button(Button(Coordinates(2, 253, 50), button_width, button_height, "Piston<-", kFontFileName), -50);
 
-    button_width = 190;
+    button_width = 220;
 
-    NumberMoleculeButton plus_circle(Button(Coordinates(2, 280, 150), button_width, button_height,
+    NumberMoleculeButton plus_circle(Button(Coordinates(2, 270, 150), button_width, button_height,
                                      "Circle +", kFontFileName), 100, kCircleType);
-    NumberMoleculeButton minus_circle(Button(Coordinates(2, 40, 150), button_width, button_height,
+    NumberMoleculeButton minus_circle(Button(Coordinates(2, 20, 150), button_width, button_height,
                                      "Circle -", kFontFileName), -100, kCircleType);
-    NumberMoleculeButton plus_cube(Button(Coordinates(2, 280, 250), button_width, button_height,
+    NumberMoleculeButton plus_cube(Button(Coordinates(2, 270, 250), button_width, button_height,
                                      "Cube +", kFontFileName), 100, kCubeType);
-    NumberMoleculeButton minus_cube(Button(Coordinates(2, 40, 250), button_width, button_height,
+    NumberMoleculeButton minus_cube(Button(Coordinates(2, 20, 250), button_width, button_height,
                                      "Cube -", kFontFileName), -100, kCubeType);
 
     std::vector<Widget*> buttons;

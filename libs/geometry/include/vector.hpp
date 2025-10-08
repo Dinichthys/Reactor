@@ -7,10 +7,11 @@
 
 #include "my_assert.h"
 
-const float kVectorWidth = 1.f;
-const float kArrowLenPercentage  = 0.125f;
-const float kArrowAngle = 30.f;
-const float kRotationAngle = 5.f * M_PI / 180;
+static const float kVectorWidth = 1.f;
+static const float kArrowLenPercentage  = 0.125f;
+static const float kArrowAngle = 30.f;
+static const float kEpsilon = 0.01f;
+static const float kRotationAngle = 5.f * M_PI / 180;
 
 enum CoordinatesError {
     kDoneCoordinates    = 0,

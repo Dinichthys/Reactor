@@ -4,6 +4,7 @@ project (reactor CXX)
 add_executable (${PROJECT_NAME}
     src/main.cpp
     src/draw.cpp
+    src/scrollbar.cpp
     src/graph.cpp
     src/reactor.cpp
     src/generate_obj.cpp

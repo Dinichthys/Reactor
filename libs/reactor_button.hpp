@@ -35,23 +35,6 @@ class ReactorButton : public Button {
 
             return false;
         };
-
-        virtual bool OnMouseRelease(const Coordinates& mouse_pos) override {
-            Coordinates lt_corner(Widget::GetLTCornerLoc());
-            float width = Widget::GetWidth();
-            float height = Widget::GetHeight();
-
-            if ((mouse_pos[0] > lt_corner[0])
-                && (mouse_pos[1] > lt_corner[1])
-                && (mouse_pos[0] < lt_corner[0] + width)
-                && (mouse_pos[1] < lt_corner[1] + height)) {
-                Button::SetPressedInfo(false);
-
-                return true;
-            }
-
-            return false;
-        };
 };
 
 class PistonButton : public ReactorButton {

@@ -112,7 +112,7 @@ GraphError GraphManager::DrawGraph(graphics::RenderWindow* window) {
     float start_point_y = rb_corner_y - step_axis;
 
     float step = (rb_corner_x - start_point_x) / points.size();
-    float scale = (lt_corner_y - start_point_y) / (max_ * kMinDifferenceScale);
+    float scale = (lt_corner_y - start_point_y) / (top_ * kMinDifferenceScale);
 
     size_t vertex_size = points.size();
     size_t point_index = 0;
